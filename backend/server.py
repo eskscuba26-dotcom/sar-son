@@ -359,17 +359,22 @@ async def get_stock():
         # 3. Üretim verilerini grupla
         production_groups = {}
         for prod in productions:
+            thickness = prod.get('thickness', '')
+            width = prod.get('width', '')
+            length = prod.get('length', '')
+            color = prod.get('color', '')
+            
             # Key oluştur: kalınlık_en_metre_renk
-            key = f"{prod.get('thickness', '')}_{prod.get('width', '')}_{prod.get('length', '')}_{prod.get('color', '')}"
+            key = f"{thickness}_{width}_{length}_{color}"
             
             if key not in production_groups:
                 production_groups[key] = {
                     'type': 'Normal',
-                    'thickness': prod.get('thickness', ''),
-                    'width': prod.get('width', ''),
-                    'length': prod.get('length', ''),
-                    'color': prod.get('color', ''),
-                    'colorCategory': prod.get('colorCategory', ''),
+                    'thickness': thickness,
+                    'width': width,
+                    'length': length,
+                    'color': color,
+                    'colorCategory': prod.get('colorCategory', 'Doğal'),
                     'm2': prod.get('m2', 0),
                     'quantity': 0
                 }
