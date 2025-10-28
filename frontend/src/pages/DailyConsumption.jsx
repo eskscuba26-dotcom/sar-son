@@ -65,6 +65,7 @@ export const DailyConsumption = () => {
         estol: '',
         talk: '',
         fire: '',
+        gaz: '',
       });
     } catch (error) {
       toast({
