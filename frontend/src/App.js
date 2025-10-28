@@ -1,22 +1,48 @@
 import { useState } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Dashboard } from "@/pages/Dashboard";
+import { Production } from "@/pages/Production";
+import { CutProducts } from "@/pages/CutProducts";
+import { Shipment } from "@/pages/Shipment";
+import { StockView } from "@/pages/StockView";
+import { Materials } from "@/pages/Materials";
+import { DailyConsumption } from "@/pages/DailyConsumption";
+import { CostAnalysis } from "@/pages/CostAnalysis";
+import { ExchangeRates } from "@/pages/ExchangeRates";
+import { Users } from "@/pages/Users";
+import { useToast } from "@/hooks/use-toast";
 import logoImage from "./logo.png";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { username, password });
-    // Giriş işlemleri burada yapılacak
+    const result = await login(username, password);
+    if (result.success) {
+      toast({
+        title: "Başarılı",
+        description: "Giriş yapıldı, yönlendiriliyorsunuz...",
+      });
+    } else {
+      toast({
+        title: "Hata",
+        description: result.error || "Giriş başarısız",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -113,15 +139,53 @@ const LoginPage = () => {
   );
 };
 
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="text-white">Yükleniyor...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <DashboardLayout>{children}</DashboardLayout>;
+};
+
+const AppRoutes = () => {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/production" element={<ProtectedRoute><Production /></ProtectedRoute>} />
+      <Route path="/cut-products" element={<ProtectedRoute><CutProducts /></ProtectedRoute>} />
+      <Route path="/shipment" element={<ProtectedRoute><Shipment /></ProtectedRoute>} />
+      <Route path="/stock" element={<ProtectedRoute><StockView /></ProtectedRoute>} />
+      <Route path="/materials" element={<ProtectedRoute><Materials /></ProtectedRoute>} />
+      <Route path="/daily-consumption" element={<ProtectedRoute><DailyConsumption /></ProtectedRoute>} />
+      <Route path="/cost-analysis" element={<ProtectedRoute><CostAnalysis /></ProtectedRoute>} />
+      <Route path="/exchange-rates" element={<ProtectedRoute><ExchangeRates /></ProtectedRoute>} />
+      <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+    </Routes>
+  );
+};
+
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </div>
+    </AuthProvider>
   );
 }
 
