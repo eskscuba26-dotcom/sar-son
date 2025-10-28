@@ -14,7 +14,6 @@ import {
   DollarSign,
   Users,
   LogOut,
-  FileSpreadsheet,
 } from 'lucide-react';
 
 const menuItems = [
