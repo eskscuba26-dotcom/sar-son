@@ -175,8 +175,9 @@ async def get_stock_stats():
     # Get daily consumption
     consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
     
-    # Initialize material stocks (GAZ yok artık!)
+    # Initialize material stocks
     material_stocks = {
+        "gaz": 0.0,  # GAZ EKLENDİ!
         "petkim": 0.0,
         "estol": 0.0,
         "talk": 0.0,
@@ -192,7 +193,9 @@ async def get_stock_stats():
         material_name = mat.get("material", "").upper()
         quantity = float(mat.get("quantity", 0))
         
-        if "PETKİM" in material_name or "PETKIM" in material_name:
+        if "GAZ" in material_name:
+            material_stocks["gaz"] += quantity
+        elif "PETKİM" in material_name or "PETKIM" in material_name:
             material_stocks["petkim"] += quantity
         elif "ESTOL" in material_name:
             material_stocks["estol"] += quantity
@@ -209,12 +212,14 @@ async def get_stock_stats():
         elif "SARI" in material_name or "SARI" in material_name.upper():
             material_stocks["sari"] += quantity
     
-    # Subtract daily consumption (Çıkış) - YENİ ALANLAR
+    # Subtract daily consumption (Çıkış) - YENİ: GAZ EKLENDİ
     for consumption in consumptions:
+        gaz = float(consumption.get("gaz", 0))
         petkim = float(consumption.get("petkim", 0))
         estol = float(consumption.get("estol", 0))
         talk = float(consumption.get("talk", 0))
         
+        material_stocks["gaz"] -= gaz
         material_stocks["petkim"] -= petkim
         material_stocks["estol"] -= estol
         material_stocks["talk"] -= talk
