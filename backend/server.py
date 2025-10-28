@@ -248,7 +248,7 @@ async def get_stock_stats():
     return {
         "totalStock": total_stock,
         "cutProducts": cut_products_total,
-        "totalProductions": production_count,  # DÜZELTME: Key adı doğru
+        "productions": production_count,
         "materials": {
             "gaz": round(material_stocks["gaz"], 2),
             "petkim": round(material_stocks["petkim"], 2),
