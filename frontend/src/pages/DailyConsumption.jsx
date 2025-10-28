@@ -185,18 +185,6 @@ export const DailyConsumption = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-200">Toplam Üretim (m²)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={formData.totalProduction}
-                  onChange={(e) => setFormData({ ...formData, totalProduction: e.target.value })}
-                  className="bg-slate-800/50 border-slate-700 text-white"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label className="text-slate-200">Petkim (kg)</Label>
                 <Input
                   type="number"
