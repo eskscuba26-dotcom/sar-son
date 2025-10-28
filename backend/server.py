@@ -162,9 +162,8 @@ async def get_stock_stats():
     # Get daily consumption
     consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
     
-    # Initialize material stocks
+    # Initialize material stocks (GAZ yok artık!)
     material_stocks = {
-        "gaz": 0.0,
         "petkim": 0.0,
         "estol": 0.0,
         "talk": 0.0,
@@ -180,9 +179,7 @@ async def get_stock_stats():
         material_name = mat.get("material", "").upper()
         quantity = float(mat.get("quantity", 0))
         
-        if "GAZ" in material_name:
-            material_stocks["gaz"] += quantity
-        elif "PETKİM" in material_name or "PETKIM" in material_name:
+        if "PETKİM" in material_name or "PETKIM" in material_name:
             material_stocks["petkim"] += quantity
         elif "ESTOL" in material_name:
             material_stocks["estol"] += quantity
@@ -199,21 +196,15 @@ async def get_stock_stats():
         elif "SARI" in material_name or "SARI" in material_name.upper():
             material_stocks["sari"] += quantity
     
-    # Subtract daily consumption (Çıkış)
+    # Subtract daily consumption (Çıkış) - YENİ ALANLAR
     for consumption in consumptions:
-        material_name = consumption.get("material", "").upper()
-        consumed = float(consumption.get("consumed", 0))
+        petkim = float(consumption.get("petkim", 0))
+        estol = float(consumption.get("estol", 0))
+        talk = float(consumption.get("talk", 0))
         
-        if "GAZ" in material_name:
-            material_stocks["gaz"] -= consumed
-        elif "PETKİM" in material_name or "PETKIM" in material_name:
-            material_stocks["petkim"] -= consumed
-        elif "ESTOL" in material_name:
-            material_stocks["estol"] -= consumed
-        elif "TALK" in material_name:
-            material_stocks["talk"] -= consumed
-        elif "SARI" in material_name or "SARI" in material_name.upper():
-            material_stocks["sari"] -= consumed
+        material_stocks["petkim"] -= petkim
+        material_stocks["estol"] -= estol
+        material_stocks["talk"] -= talk
     
     # Subtract masura usage from productions
     production_list = await db.productions.find({}, {"_id": 0, "masuraType": 1, "quantity": 1}).to_list(1000)
