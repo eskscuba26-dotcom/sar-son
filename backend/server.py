@@ -144,21 +144,93 @@ async def get_stock_stats():
     productions = await db.productions.find({}, {"_id": 0, "quantity": 1}).to_list(1000)
     total_stock = sum(p.get("quantity", 0) for p in productions)
     
+    # Count cut products
+    cut_products_count = await db.cut_products.count_documents({})
+    
+    # Calculate material stocks (Giriş - Tüketim = Kalan)
+    # Get materials entries
+    materials = await db.materials.find({}, {"_id": 0}).to_list(1000)
+    
+    # Get daily consumption
+    consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
+    
+    # Initialize material stocks
+    material_stocks = {
+        "gaz": 0,
+        "petkim": 0,
+        "estol": 0,
+        "talk": 0,
+        "masura100": 0,
+        "masura120": 0,
+        "masura150": 0,
+        "masura200": 0,
+        "sari": 0,
+    }
+    
+    # Add material entries (Giriş)
+    for mat in materials:
+        material_name = mat.get("material", "").upper()
+        quantity = float(mat.get("quantity", 0))
+        
+        if "GAZ" in material_name:
+            material_stocks["gaz"] += quantity
+        elif "PETKIM" in material_name or "PETKİM" in material_name:
+            material_stocks["petkim"] += quantity
+        elif "ESTOL" in material_name:
+            material_stocks["estol"] += quantity
+        elif "TALK" in material_name:
+            material_stocks["talk"] += quantity
+        elif "MASURA 100" in material_name:
+            material_stocks["masura100"] += quantity
+        elif "MASURA 120" in material_name:
+            material_stocks["masura120"] += quantity
+        elif "MASURA 150" in material_name:
+            material_stocks["masura150"] += quantity
+        elif "MASURA 200" in material_name:
+            material_stocks["masura200"] += quantity
+        elif "SARI" in material_name:
+            material_stocks["sari"] += quantity
+    
+    # Subtract daily consumption (Çıkış)
+    for consumption in consumptions:
+        material_name = consumption.get("material", "").upper()
+        consumed = float(consumption.get("consumed", 0))
+        
+        if "GAZ" in material_name:
+            material_stocks["gaz"] -= consumed
+        elif "PETKIM" in material_name or "PETKİM" in material_name:
+            material_stocks["petkim"] -= consumed
+        elif "ESTOL" in material_name:
+            material_stocks["estol"] -= consumed
+        elif "TALK" in material_name:
+            material_stocks["talk"] -= consumed
+        elif "SARI" in material_name:
+            material_stocks["sari"] -= consumed
+    
+    # Subtract masura usage from productions
+    production_list = await db.productions.find({}, {"_id": 0, "masuraType": 1, "quantity": 1}).to_list(1000)
+    for prod in production_list:
+        masura_type = prod.get("masuraType", "")
+        quantity = int(prod.get("quantity", 0))
+        
+        if "100" in masura_type:
+            material_stocks["masura100"] -= quantity
+        elif "120" in masura_type:
+            material_stocks["masura120"] -= quantity
+        elif "150" in masura_type:
+            material_stocks["masura150"] -= quantity
+        elif "200" in masura_type:
+            material_stocks["masura200"] -= quantity
+    
+    # Round to 2 decimals
+    for key in material_stocks:
+        material_stocks[key] = round(material_stocks[key], 2)
+    
     return StockStats(
         totalStock=total_stock,
-        cutProducts=0,
+        cutProducts=cut_products_count,
         productions=production_count,
-        materials={
-            "gaz": 0,
-            "petkim": 0,
-            "estol": 0,
-            "talk": 0,
-            "masura100": 0,
-            "masura120": 0,
-            "masura150": 0,
-            "masura200": 0,
-            "sari": 0,
-        }
+        materials=material_stocks
     )
 
 
