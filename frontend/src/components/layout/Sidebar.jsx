@@ -19,7 +19,6 @@ import {
 
 const menuItems = [
   { path: '/dashboard', label: 'Ana Sayfa', icon: Home },
-  { path: '/excel-viewer', label: '📊 SAR-2025 Dosyası', icon: FileSpreadsheet },
   { path: '/production', label: 'Üretim Girişi', icon: Package },
   { path: '/cut-products', label: 'Kesilmiş Ürün', icon: Scissors },
   { path: '/shipment', label: 'Sevkiyat', icon: Truck },
