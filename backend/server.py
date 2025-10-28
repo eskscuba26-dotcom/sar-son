@@ -151,8 +151,9 @@ async def get_stock_stats():
     # Remaining stock
     total_stock = total_produced - total_shipped
     
-    # Count cut products
-    cut_products_count = await db.cut_products.count_documents({})
+    # Calculate cut products TOTAL QUANTITY (not count)
+    cut_products_list = await db.cut_products.find({}, {"_id": 0, "quantity": 1}).to_list(1000)
+    cut_products_total = sum(int(cp.get("quantity", 0)) for cp in cut_products_list)
     
     # Calculate material stocks (Giriş - Tüketim = Kalan)
     # Get materials entries
@@ -163,15 +164,15 @@ async def get_stock_stats():
     
     # Initialize material stocks
     material_stocks = {
-        "gaz": 0,
-        "petkim": 0,
-        "estol": 0,
-        "talk": 0,
+        "gaz": 0.0,
+        "petkim": 0.0,
+        "estol": 0.0,
+        "talk": 0.0,
         "masura100": 0,
         "masura120": 0,
         "masura150": 0,
         "masura200": 0,
-        "sari": 0,
+        "sari": 0.0,
     }
     
     # Add material entries (Giriş)
@@ -181,20 +182,20 @@ async def get_stock_stats():
         
         if "GAZ" in material_name:
             material_stocks["gaz"] += quantity
-        elif "PETKIM" in material_name or "PETKİM" in material_name:
+        elif "PETKİM" in material_name or "PETKIM" in material_name:
             material_stocks["petkim"] += quantity
         elif "ESTOL" in material_name:
             material_stocks["estol"] += quantity
         elif "TALK" in material_name:
             material_stocks["talk"] += quantity
         elif "MASURA 100" in material_name:
-            material_stocks["masura100"] += quantity
+            material_stocks["masura100"] += int(quantity)
         elif "MASURA 120" in material_name:
-            material_stocks["masura120"] += quantity
+            material_stocks["masura120"] += int(quantity)
         elif "MASURA 150" in material_name:
-            material_stocks["masura150"] += quantity
+            material_stocks["masura150"] += int(quantity)
         elif "MASURA 200" in material_name:
-            material_stocks["masura200"] += quantity
+            material_stocks["masura200"] += int(quantity)
         elif "SARI" in material_name or "SARI" in material_name.upper():
             material_stocks["sari"] += quantity
     
@@ -205,7 +206,7 @@ async def get_stock_stats():
         
         if "GAZ" in material_name:
             material_stocks["gaz"] -= consumed
-        elif "PETKIM" in material_name or "PETKİM" in material_name:
+        elif "PETKİM" in material_name or "PETKIM" in material_name:
             material_stocks["petkim"] -= consumed
         elif "ESTOL" in material_name:
             material_stocks["estol"] -= consumed
@@ -229,13 +230,16 @@ async def get_stock_stats():
         elif "200" in masura_type:
             material_stocks["masura200"] -= quantity
     
-    # Round to 2 decimals
-    for key in material_stocks:
-        material_stocks[key] = round(material_stocks[key], 2)
+    # Round to 2 decimals for float values
+    material_stocks["gaz"] = round(material_stocks["gaz"], 2)
+    material_stocks["petkim"] = round(material_stocks["petkim"], 2)
+    material_stocks["estol"] = round(material_stocks["estol"], 2)
+    material_stocks["talk"] = round(material_stocks["talk"], 2)
+    material_stocks["sari"] = round(material_stocks["sari"], 2)
     
     return StockStats(
         totalStock=total_stock,
-        cutProducts=cut_products_count,
+        cutProducts=cut_products_total,  # CHANGED: now shows total quantity, not count
         productions=production_count,
         materials=material_stocks
     )
