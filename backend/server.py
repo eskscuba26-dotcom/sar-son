@@ -392,12 +392,18 @@ async def get_stock():
             # Size parsing: "2mm x 100cm x 300m" veya "1.8mm x 50cm x 137.5cm"
             parts = size.split(' x ')
             if len(parts) >= 3:
-                thickness = parts[0].replace('mm', '').strip()
-                width = parts[1].replace('cm', '').strip()
-                length_part = parts[2].strip()
+                thickness_raw = parts[0].replace('mm', '').strip()
+                width_raw = parts[1].replace('cm', '').strip()
+                length_raw = parts[2].replace('m', '').strip()
                 
-                # Key oluştur
-                key = f"{thickness} mm_{width}_{length_part}_{color}"
+                # Üretimde thickness "2 mm" formatında, sevkiyatta "2" formatında
+                # Key için üretim formatını kullan
+                thickness = f"{thickness_raw} mm"
+                width = width_raw
+                length = length_raw
+                
+                # Key oluştur - üretimle aynı format
+                key = f"{thickness}_{width}_{length}_{color}"
                 
                 if key not in shipment_groups:
                     shipment_groups[key] = 0
