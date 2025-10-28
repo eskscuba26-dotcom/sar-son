@@ -342,8 +342,10 @@ async def get_cost_analysis():
     
     # Hammadde birim fiyatları (TL'ye çevrilmiş)
     material_prices = {
-        'petkim': 0, 'estol': 0, 'talk': 0, 'gaz': 0, 'masura': 0
+        'petkim': 0, 'estol': 0, 'talk': 0, 'gaz': 0
     }
+    masura_prices = {}  # Her masura tipi için ayrı fiyat
+    
     for mat in materials:
         name = mat.get('material', '').upper()
         price = float(mat.get('unitPrice', 0))
@@ -366,7 +368,8 @@ async def get_cost_analysis():
         elif 'GAZ' in name:
             material_prices['gaz'] = price_tl
         elif 'MASURA' in name:
-            material_prices['masura'] = price_tl
+            # Masura tipine göre fiyatları kaydet
+            masura_prices[mat.get('material', '')] = price_tl
     
     # 4. Tarihe ve makineye göre günlük tüketimi grupla
     consumption_by_date_machine = {}
