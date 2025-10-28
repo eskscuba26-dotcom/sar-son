@@ -339,6 +339,35 @@ async def get_users():
     users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
     return users
 
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted"}
+
+@api_router.put("/users/change-password")
+async def change_password(data: dict):
+    username = data.get("username")
+    new_password = data.get("newPassword")
+    
+    if not username or not new_password:
+        raise HTTPException(status_code=400, detail="Username and new password required")
+    
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Kullanıcıyı bul ve şifreyi güncelle
+    result = await db.users.update_one(
+        {"username": username},
+        {"$set": {"password": new_password}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found or password unchanged")
+    
+    return {"message": "Password changed successfully"}
+
 @api_router.get("/excel-viewer")
 async def get_excel_data():
     """Excel dosyasını okuyup JSON olarak döndür"""
