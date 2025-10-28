@@ -17,9 +17,11 @@ export const DailyConsumption = () => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     machine: '',
-    material: '',
-    consumed: '',
-    unit: 'Kilogram',
+    totalProduction: '',
+    petkim: '',
+    estol: '',
+    talk: '',
+    fire: '',
   });
   const { toast } = useToast();
 
@@ -48,9 +50,11 @@ export const DailyConsumption = () => {
       setFormData({
         date: new Date().toISOString().split('T')[0],
         machine: '',
-        material: '',
-        consumed: '',
-        unit: 'Kilogram',
+        totalProduction: '',
+        petkim: '',
+        estol: '',
+        talk: '',
+        fire: '',
       });
     } catch (error) {
       toast({
@@ -61,13 +65,11 @@ export const DailyConsumption = () => {
     }
   };
 
-  const totalByMaterial = {};
-  consumptions.forEach(item => {
-    if (!totalByMaterial[item.material]) {
-      totalByMaterial[item.material] = 0;
-    }
-    totalByMaterial[item.material] += parseFloat(item.consumed) || 0;
-  });
+  const totalProduction = consumptions.reduce((sum, item) => sum + parseFloat(item.totalProduction || 0), 0);
+  const totalPetkim = consumptions.reduce((sum, item) => sum + parseFloat(item.petkim || 0), 0);
+  const totalEstol = consumptions.reduce((sum, item) => sum + parseFloat(item.estol || 0), 0);
+  const totalTalk = consumptions.reduce((sum, item) => sum + parseFloat(item.talk || 0), 0);
+  const totalFire = consumptions.reduce((sum, item) => sum + parseFloat(item.fire || 0), 0);
 
   return (
     <div className="space-y-6" data-testid="daily-consumption-page">
@@ -77,18 +79,56 @@ export const DailyConsumption = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {Object.entries(totalByMaterial).map(([material, total]) => (
-          <Card key={material} className="bg-gradient-to-br from-blue-600 to-blue-800 border-0">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-white/90">{material}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">{total.toFixed(2)}</div>
-              <p className="text-xs text-white/80 mt-1">kg</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="bg-gradient-to-br from-purple-600 to-purple-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Toplam Üretim</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalProduction.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">m²</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-600 to-blue-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Petkim</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalPetkim.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">kg</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-teal-500 to-teal-700 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Estol</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalEstol.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">kg</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-cyan-600 to-cyan-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Talk</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalTalk.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">kg</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-600 to-red-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Fire</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalFire.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">kg</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Form */}
@@ -122,39 +162,66 @@ export const DailyConsumption = () => {
                   <SelectContent>
                     <SelectItem value="Makine 1">Makine 1</SelectItem>
                     <SelectItem value="Makine 2">Makine 2</SelectItem>
-                    <SelectItem value="Makine 3">Makine 3</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-200">Hammadde</Label>
-                <Select
-                  value={formData.material}
-                  onValueChange={(value) => setFormData({ ...formData, material: value })}
-                >
-                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                    <SelectValue placeholder="Hammadde seçiniz" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GAZ">GAZ</SelectItem>
-                    <SelectItem value="PETKİM">PETKİM</SelectItem>
-                    <SelectItem value="ESTOL">ESTOL</SelectItem>
-                    <SelectItem value="TALK">TALK</SelectItem>
-                    <SelectItem value="SARI">SARI</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-slate-200">Tüketilen Miktar</Label>
+                <Label className="text-slate-200">Toplam Üretim (m²)</Label>
                 <Input
                   type="number"
                   step="0.01"
-                  value={formData.consumed}
-                  onChange={(e) => setFormData({ ...formData, consumed: e.target.value })}
+                  value={formData.totalProduction}
+                  onChange={(e) => setFormData({ ...formData, totalProduction: e.target.value })}
                   className="bg-slate-800/50 border-slate-700 text-white"
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-200">Petkim (kg)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.petkim}
+                  onChange={(e) => setFormData({ ...formData, petkim: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-200">Estol (kg)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.estol}
+                  onChange={(e) => setFormData({ ...formData, estol: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-200">Talk (kg)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.talk}
+                  onChange={(e) => setFormData({ ...formData, talk: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-200">Fire (kg)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.fire}
+                  onChange={(e) => setFormData({ ...formData, fire: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
                 />
               </div>
             </div>
@@ -189,15 +256,17 @@ export const DailyConsumption = () => {
                 <TableRow className="border-slate-800 hover:bg-slate-800/50">
                   <TableHead className="text-slate-300">Tarih</TableHead>
                   <TableHead className="text-slate-300">Makine</TableHead>
-                  <TableHead className="text-slate-300">Hammadde</TableHead>
-                  <TableHead className="text-slate-300">Tüketilen Miktar</TableHead>
-                  <TableHead className="text-slate-300">Birim</TableHead>
+                  <TableHead className="text-slate-300">Toplam Üretim (m²)</TableHead>
+                  <TableHead className="text-slate-300">Petkim (kg)</TableHead>
+                  <TableHead className="text-slate-300">Estol (kg)</TableHead>
+                  <TableHead className="text-slate-300">Talk (kg)</TableHead>
+                  <TableHead className="text-slate-300">Fire (kg)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {consumptions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={7} className="text-center text-slate-400 py-8">
                       Henüz tüketim kaydı bulunmuyor
                     </TableCell>
                   </TableRow>
@@ -206,9 +275,11 @@ export const DailyConsumption = () => {
                     <TableRow key={item.id} className="border-slate-800 hover:bg-slate-800/50">
                       <TableCell className="text-slate-300">{item.date}</TableCell>
                       <TableCell className="text-slate-300">{item.machine}</TableCell>
-                      <TableCell className="text-blue-400 font-semibold">{item.material}</TableCell>
-                      <TableCell className="text-emerald-400 font-semibold">{item.consumed}</TableCell>
-                      <TableCell className="text-slate-300">{item.unit}</TableCell>
+                      <TableCell className="text-purple-400 font-semibold">{parseFloat(item.totalProduction).toFixed(2)}</TableCell>
+                      <TableCell className="text-blue-400 font-semibold">{parseFloat(item.petkim).toFixed(2)}</TableCell>
+                      <TableCell className="text-teal-400">{parseFloat(item.estol).toFixed(2)}</TableCell>
+                      <TableCell className="text-cyan-400">{parseFloat(item.talk).toFixed(2)}</TableCell>
+                      <TableCell className="text-red-400">{parseFloat(item.fire || 0).toFixed(2)}</TableCell>
                     </TableRow>
                   ))
                 )}
