@@ -36,14 +36,15 @@ export const CostAnalysis = () => {
 
   const filteredData = costData.filter(item =>
     item.date?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.thickness?.toLowerCase().includes(searchTerm.toLowerCase())
+    item.thickness?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.machine?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalMaterialCost = costData.reduce((sum, item) => sum + parseFloat(item.materialCost || 0), 0);
   const totalMasuraCost = costData.reduce((sum, item) => sum + parseFloat(item.masuraCost || 0), 0);
   const grandTotal = costData.reduce((sum, item) => sum + parseFloat(item.totalCost || 0), 0);
-  const totalM2 = costData.reduce((sum, item) => sum + parseFloat(item.totalM2 || 0), 0);
-  const totalQuantity = costData.reduce((sum, item) => sum + parseInt(item.totalQuantity || 0), 0);
+  const totalM2 = costData.reduce((sum, item) => sum + parseFloat(item.m2 || 0), 0);
+  const totalQuantity = costData.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
 
   return (
     <div className="space-y-6">
