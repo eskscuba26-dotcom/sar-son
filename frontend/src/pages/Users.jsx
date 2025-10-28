@@ -121,9 +121,66 @@ export const Users = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Kullanıcı Yönetimi</h1>
-        <p className="text-slate-400 mt-1">Sistem kullanıcılarını yönetin</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Kullanıcı Yönetimi</h1>
+          <p className="text-slate-400 mt-1">Sistem kullanıcılarını yönetin</p>
+        </div>
+        
+        {/* Şifre Değiştir Butonu */}
+        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-amber-600 hover:bg-amber-700">
+              <Key className="h-4 w-4 mr-2" />
+              Şifremi Değiştir
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-slate-900 border-slate-800">
+            <DialogHeader>
+              <DialogTitle className="text-white">Şifre Değiştir</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-slate-200">Mevcut Şifre</Label>
+                <Input
+                  type="password"
+                  value={passwordChangeData.currentPassword}
+                  onChange={(e) => setPasswordChangeData({ ...passwordChangeData, currentPassword: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-slate-200">Yeni Şifre</Label>
+                <Input
+                  type="password"
+                  value={passwordChangeData.newPassword}
+                  onChange={(e) => setPasswordChangeData({ ...passwordChangeData, newPassword: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-slate-200">Yeni Şifre (Tekrar)</Label>
+                <Input
+                  type="password"
+                  value={passwordChangeData.confirmPassword}
+                  onChange={(e) => setPasswordChangeData({ ...passwordChangeData, confirmPassword: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                Şifreyi Değiştir
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}
