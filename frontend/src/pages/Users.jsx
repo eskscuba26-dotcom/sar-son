@@ -63,6 +63,62 @@ export const Users = () => {
     }
   };
 
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    
+    if (passwordChangeData.newPassword !== passwordChangeData.confirmPassword) {
+      toast({ title: 'Hata', description: 'Yeni şifreler eşleşmiyor', variant: 'destructive' });
+      return;
+    }
+
+    if (passwordChangeData.newPassword.length < 6) {
+      toast({ title: 'Hata', description: 'Şifre en az 6 karakter olmalıdır', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      // Mevcut şifreyi doğrula
+      const loginResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: currentUser.username,
+          password: passwordChangeData.currentPassword
+        })
+      });
+
+      if (!loginResponse.ok) {
+        toast({ title: 'Hata', description: 'Mevcut şifre yanlış', variant: 'destructive' });
+        return;
+      }
+
+      // Şifreyi güncelle (backend endpoint'i eklemeliyiz)
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL}/api/users/change-password`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          username: currentUser.username,
+          newPassword: passwordChangeData.newPassword
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Başarılı', description: 'Şifreniz değiştirildi' });
+        setPasswordChangeData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setIsPasswordDialogOpen(false);
+      } else {
+        throw new Error('Şifre değiştirilemedi');
+      }
+    } catch (error) {
+      toast({ title: 'Hata', description: 'Şifre değiştirilemedi', variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
