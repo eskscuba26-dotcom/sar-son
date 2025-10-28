@@ -359,7 +359,7 @@ async def get_daily_consumption():
         }, {"_id": 0}).to_list(1000)
         
         # Toplam m² hesapla
-        total_m2 = sum(float(p.get('area', 0)) for p in productions)
+        total_m2 = sum(float(p.get('m2', 0)) for p in productions)
         grouped[key]['totalProduction'] = total_m2
     
     return list(grouped.values())
