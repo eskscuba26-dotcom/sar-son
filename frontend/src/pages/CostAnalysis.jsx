@@ -129,26 +129,29 @@ export const CostAnalysis = () => {
               <TableHeader>
                 <TableRow className="border-slate-800 hover:bg-slate-800/50">
                   <TableHead className="text-slate-300">Tarih</TableHead>
+                  <TableHead className="text-slate-300">Makine</TableHead>
                   <TableHead className="text-slate-300">Kalınlık</TableHead>
                   <TableHead className="text-slate-300">En</TableHead>
                   <TableHead className="text-slate-300">Boy</TableHead>
-                  <TableHead className="text-slate-300">Toplam m²</TableHead>
-                  <TableHead className="text-slate-300">Toplam Adet</TableHead>
+                  <TableHead className="text-slate-300">m²</TableHead>
+                  <TableHead className="text-slate-300">Adet</TableHead>
+                  <TableHead className="text-slate-300">Masura</TableHead>
+                  <TableHead className="text-slate-300">Renk</TableHead>
                   <TableHead className="text-slate-300">Petkim (kg)</TableHead>
                   <TableHead className="text-slate-300">Estol (kg)</TableHead>
                   <TableHead className="text-slate-300">Talk (kg)</TableHead>
                   <TableHead className="text-slate-300">Gaz (kg)</TableHead>
-                  <TableHead className="text-slate-300">Hammadde Maliyet</TableHead>
-                  <TableHead className="text-slate-300">Masura Maliyet</TableHead>
-                  <TableHead className="text-slate-300 font-bold">Toplam Maliyet</TableHead>
-                  <TableHead className="text-slate-300 font-bold">Birim Maliyet</TableHead>
-                  <TableHead className="text-slate-300 font-bold">m² Maliyet</TableHead>
+                  <TableHead className="text-slate-300">Ham. Maliyet</TableHead>
+                  <TableHead className="text-slate-300">Mas. Maliyet</TableHead>
+                  <TableHead className="text-slate-300 font-bold">Toplam</TableHead>
+                  <TableHead className="text-slate-300 font-bold">Birim</TableHead>
+                  <TableHead className="text-slate-300 font-bold">m²</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={15} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={18} className="text-center text-slate-400 py-8">
                       Henüz maliyet verisi bulunmuyor
                     </TableCell>
                   </TableRow>
@@ -156,11 +159,14 @@ export const CostAnalysis = () => {
                   filteredData.map((item, index) => (
                     <TableRow key={index} className="border-slate-800 hover:bg-slate-800/50">
                       <TableCell className="text-slate-300">{item.date}</TableCell>
+                      <TableCell className="text-slate-300">{item.machine}</TableCell>
                       <TableCell className="text-slate-300">{item.thickness}</TableCell>
                       <TableCell className="text-slate-300">{item.width}</TableCell>
                       <TableCell className="text-slate-300">{item.length}</TableCell>
-                      <TableCell className="text-blue-400 font-semibold">{item.totalM2} m²</TableCell>
-                      <TableCell className="text-purple-400 font-semibold">{item.totalQuantity}</TableCell>
+                      <TableCell className="text-blue-400 font-semibold">{item.m2}</TableCell>
+                      <TableCell className="text-purple-400 font-semibold">{item.quantity}</TableCell>
+                      <TableCell className="text-slate-300 text-xs">{item.masuraType}</TableCell>
+                      <TableCell className="text-slate-300 text-xs">{item.color}</TableCell>
                       <TableCell className="text-slate-300">{item.petkim}</TableCell>
                       <TableCell className="text-slate-300">{item.estol}</TableCell>
                       <TableCell className="text-slate-300">{item.talk}</TableCell>
