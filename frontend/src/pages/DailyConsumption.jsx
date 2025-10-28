@@ -17,7 +17,6 @@ export const DailyConsumption = () => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     machine: '',
-    totalProduction: '',
     petkim: '',
     estol: '',
     talk: '',
