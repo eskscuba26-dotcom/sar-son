@@ -31,7 +31,6 @@ export const DailyConsumption = () => {
   }, []);
 
   useEffect(() => {
-    setTotalProduction(consumptions.reduce((sum, item) => sum + parseFloat(item.totalProduction || 0), 0));
     setTotalPetkim(consumptions.reduce((sum, item) => sum + parseFloat(item.petkim || 0), 0));
     setTotalEstol(consumptions.reduce((sum, item) => sum + parseFloat(item.estol || 0), 0));
     setTotalTalk(consumptions.reduce((sum, item) => sum + parseFloat(item.talk || 0), 0));
