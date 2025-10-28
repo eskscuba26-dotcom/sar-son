@@ -1,168 +1,229 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { productionApi, cutProductApi, shipmentApi } from '@/services/api';
+import { Button } from '@/components/ui/button';
+import { Download, Package } from 'lucide-react';
+import { api } from '@/services/api';
+import * as XLSX from 'xlsx';
 
-export const StockView = () => {
+export const Stock = () => {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalNormal: 0,
+    totalCut: 0,
+    totalM2: 0,
+  });
 
   useEffect(() => {
-    calculateStock();
+    fetchStockData();
   }, []);
 
-  const calculateStock = async () => {
+  const fetchStockData = async () => {
     try {
-      // Get all data
-      const [prodRes, cutRes, shipRes] = await Promise.all([
-        productionApi.getAll(),
-        cutProductApi.getAll(),
-        shipmentApi.getAll()
-      ]);
-
-      const productions = prodRes.data;
-      const shipments = shipRes.data;
-
-      // Group by product specs
-      const stockMap = {};
-
-      // Add productions
-      productions.forEach(prod => {
-        const key = `${prod.thickness}_${prod.width}_${prod.length}_${prod.color}`;
-        if (!stockMap[key]) {
-          stockMap[key] = {
-            thickness: prod.thickness,
-            width: prod.width,
-            length: prod.length,
-            color: prod.color,
-            produced: 0,
-            shipped: 0,
-            remaining: 0,
-            m2: 0
-          };
-        }
-        stockMap[key].produced += prod.quantity;
+      setLoading(true);
+      const response = await api.stock.getAll();
+      const data = response.data || [];
+      setStockData(data);
+      
+      // Calculate stats
+      const normalTotal = data
+        .filter(item => item.type === 'Normal')
+        .reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
+      const cutTotal = data
+        .filter(item => item.type === 'Kesilmiş')
+        .reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
+      const m2Total = data.reduce((sum, item) => sum + ((item.m2 || 0) * (item.quantity || 0)), 0);
+      
+      setStats({
+        totalNormal: normalTotal,
+        totalCut: cutTotal,
+        totalM2: m2Total.toFixed(2),
       });
-
-      // Subtract shipments (only Normal type)
-      shipments.filter(s => s.type === 'Normal').forEach(ship => {
-        // Try to match with stock
-        Object.keys(stockMap).forEach(key => {
-          const stock = stockMap[key];
-          if (ship.size && ship.size.includes(stock.width) && ship.color === stock.color) {
-            stock.shipped += ship.quantity || 0;
-          }
-        });
-      });
-
-      // Calculate remaining
-      const stockArray = Object.values(stockMap).map(stock => {
-        stock.remaining = stock.produced - stock.shipped;
-        stock.m2 = ((parseFloat(stock.width) * parseFloat(stock.length) * stock.remaining) / 10000).toFixed(2);
-        return stock;
-      }).filter(s => s.remaining > 0);
-
-      setStockData(stockArray);
-      setLoading(false);
     } catch (error) {
-      console.error('Stock calculation error:', error);
+      console.error('Stok verileri alınamadı:', error);
+    } finally {
       setLoading(false);
     }
   };
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      stockData.map(item => ({
+        'Ürün Tipi': item.type,
+        'Kalınlık (mm)': item.thickness,
+        'En (cm)': item.width,
+        'Metre / Boy': item.length,
+        'Renk': item.color,
+        'Toplam m²': item.m2,
+        'Toplam Adet': item.quantity,
+      }))
+    );
+    
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stok');
+    XLSX.writeFile(workbook, `SAR_Stok_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-slate-400">Yükleniyor...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6" data-testid="stock-page">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Stok Görünümü</h1>
-        <p className="text-slate-400 mt-1">Güncel stok durumunu görüntüleyin</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Stok Görünümü</h1>
+          <p className="text-slate-400 mt-1">Mevcut stok durumu ve özeti</p>
+        </div>
+        <Button 
+          onClick={exportToExcel}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Excel'e Aktar
+        </Button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-700 border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/90">Toplam Stok Adedi</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-white">
-              {stockData.reduce((sum, item) => sum + item.remaining, 0)}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Normal Ürün Stoğu</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {stats.totalNormal}
+                </p>
+                <p className="text-slate-500 text-xs mt-1">adet</p>
+              </div>
+              <div className="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                <Package className="h-6 w-6 text-blue-400" />
+              </div>
             </div>
-            <p className="text-xs text-white/80 mt-1">Rulo/Adet</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-600 to-blue-800 border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/90">Toplam m²</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-white">
-              {stockData.reduce((sum, item) => sum + parseFloat(item.m2), 0).toFixed(2)}
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Kesilmiş Ürün Stoğu</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {stats.totalCut}
+                </p>
+                <p className="text-slate-500 text-xs mt-1">adet</p>
+              </div>
+              <div className="h-12 w-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                <Package className="h-6 w-6 text-purple-400" />
+              </div>
             </div>
-            <p className="text-xs text-white/80 mt-1">Metrekare</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-600 to-purple-800 border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/90">Çeşit Sayısı</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-white">{stockData.length}</div>
-            <p className="text-xs text-white/80 mt-1">Farklı ürün</p>
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Toplam m²</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {stats.totalM2}
+                </p>
+                <p className="text-slate-500 text-xs mt-1">metrekare</p>
+              </div>
+              <div className="h-12 w-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                <Package className="h-6 w-6 text-emerald-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Stock Table */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Stok Detayları</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-slate-800/50">
-                  <TableHead className="text-slate-300">Kalınlık</TableHead>
-                  <TableHead className="text-slate-300">En (cm)</TableHead>
-                  <TableHead className="text-slate-300">Metre</TableHead>
-                  <TableHead className="text-slate-300">Renk</TableHead>
-                  <TableHead className="text-slate-300">Üretilen</TableHead>
-                  <TableHead className="text-slate-300">Sevk Edilen</TableHead>
-                  <TableHead className="text-slate-300">Kalan</TableHead>
-                  <TableHead className="text-slate-300">Toplam m²</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center text-slate-400 py-8">
-                      Yükleniyor...
-                    </TableCell>
-                  </TableRow>
-                ) : stockData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center text-slate-400 py-8">
-                      Henüz stok kaydı bulunmuyor
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  stockData.map((item, index) => (
-                    <TableRow key={index} className="border-slate-800 hover:bg-slate-800/50">
-                      <TableCell className="text-slate-300">{item.thickness}</TableCell>
-                      <TableCell className="text-slate-300">{item.width} cm</TableCell>
-                      <TableCell className="text-slate-300">{item.length} m</TableCell>
-                      <TableCell className="text-slate-300">{item.color}</TableCell>
-                      <TableCell className="text-blue-400">{item.produced}</TableCell>
-                      <TableCell className="text-orange-400">{item.shipped}</TableCell>
-                      <TableCell className="text-emerald-400 font-semibold text-lg">{item.remaining}</TableCell>
-                      <TableCell className="text-purple-400 font-semibold">{item.m2} m²</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-700">
+                  <th className="text-left p-3 text-slate-300 font-medium">Ürün Tipi</th>
+                  <th className="text-left p-3 text-slate-300 font-medium">Kalınlık</th>
+                  <th className="text-left p-3 text-slate-300 font-medium">En</th>
+                  <th className="text-left p-3 text-slate-300 font-medium">Metre/Boy</th>
+                  <th className="text-left p-3 text-slate-300 font-medium">Renk</th>
+                  <th className="text-right p-3 text-slate-300 font-medium">m²</th>
+                  <th className="text-right p-3 text-slate-300 font-medium">Adet</th>
+                  <th className="text-right p-3 text-slate-300 font-medium">Toplam m²</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stockData.map((item, index) => (
+                  <tr 
+                    key={index} 
+                    className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors"
+                  >
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        item.type === 'Normal' 
+                          ? 'bg-blue-500/10 text-blue-400' 
+                          : 'bg-purple-500/10 text-purple-400'
+                      }`}>
+                        {item.type}
+                      </span>
+                    </td>
+                    <td className="p-3 text-slate-300">{item.thickness} mm</td>
+                    <td className="p-3 text-slate-300">{item.width} cm</td>
+                    <td className="p-3 text-slate-300">{item.length}</td>
+                    <td className="p-3">
+                      <span className={`text-sm ${
+                        item.colorCategory === 'Renkli' 
+                          ? 'text-yellow-400' 
+                          : 'text-slate-300'
+                      }`}>
+                        {item.color}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right text-slate-300">{item.m2}</td>
+                    <td className="p-3 text-right">
+                      <span className={`font-medium ${
+                        item.quantity < 0 
+                          ? 'text-red-400' 
+                          : item.quantity < 10 
+                            ? 'text-yellow-400' 
+                            : 'text-emerald-400'
+                      }`}>
+                        {item.quantity}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right text-slate-300 font-medium">
+                      {(item.m2 * item.quantity).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-slate-600 bg-slate-700/30">
+                  <td colSpan="6" className="p-3 text-right text-slate-300 font-bold">
+                    TOPLAM:
+                  </td>
+                  <td className="p-3 text-right text-white font-bold">
+                    {stats.totalNormal + stats.totalCut}
+                  </td>
+                  <td className="p-3 text-right text-white font-bold">
+                    {stats.totalM2}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </CardContent>
       </Card>
