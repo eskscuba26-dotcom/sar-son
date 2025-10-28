@@ -22,6 +22,7 @@ export const DailyConsumption = () => {
     estol: '',
     talk: '',
     fire: '',
+    gaz: '',
   });
   const { toast } = useToast();
 
