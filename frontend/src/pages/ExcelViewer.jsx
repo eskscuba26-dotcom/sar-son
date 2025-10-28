@@ -4,7 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
-import api from "@/services/api";
+import axios from "axios";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
 export const ExcelViewer = () => {
   const [excelData, setExcelData] = useState(null);
@@ -18,7 +20,7 @@ export const ExcelViewer = () => {
   const loadExcelData = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/excel-viewer");
+      const response = await axios.get(`${API_URL}/api/excel-viewer`);
       setExcelData(response.data);
       setError(null);
     } catch (err) {
