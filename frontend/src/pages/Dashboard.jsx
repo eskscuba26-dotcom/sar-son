@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { stockApi } from '@/services/api';
-import { Package, Scissors, FileText, Activity } from 'lucide-react';
+import { Package, Scissors, FileText, Activity, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const Dashboard = () => {
