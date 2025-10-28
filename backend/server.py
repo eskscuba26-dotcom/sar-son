@@ -315,7 +315,39 @@ async def create_material(data: dict):
 @api_router.get("/daily-consumption")
 async def get_daily_consumption():
     consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
-    return consumptions
+    
+    # Tarihe ve makineye göre grupla
+    grouped = {}
+    for item in consumptions:
+        key = f"{item.get('date')}_{item.get('machine')}"
+        if key not in grouped:
+            grouped[key] = {
+                'id': item.get('id'),
+                'date': item.get('date'),
+                'machine': item.get('machine'),
+                'totalProduction': 0,
+                'petkim': 0,
+                'estol': 0,
+                'talk': 0,
+                'gaz': 0,
+                'fire': 0,
+            }
+        
+        material = item.get('material', '').upper()
+        consumed = float(item.get('consumed', 0))
+        
+        if 'PETK' in material:
+            grouped[key]['petkim'] = consumed
+        elif 'ESTOL' in material:
+            grouped[key]['estol'] = consumed
+        elif 'TALK' in material:
+            grouped[key]['talk'] = consumed
+        elif 'GAZ' in material:
+            grouped[key]['gaz'] = consumed
+        elif 'SARI' in material:
+            grouped[key]['fire'] = consumed
+    
+    return list(grouped.values())
 
 @api_router.post("/daily-consumption")
 async def create_daily_consumption(data: dict):
