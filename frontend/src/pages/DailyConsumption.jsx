@@ -75,7 +75,6 @@ export const DailyConsumption = () => {
     }
   };
 
-  const [totalProduction, setTotalProduction] = useState(0);
   const [totalPetkim, setTotalPetkim] = useState(0);
   const [totalEstol, setTotalEstol] = useState(0);
   const [totalTalk, setTotalTalk] = useState(0);
@@ -91,12 +90,12 @@ export const DailyConsumption = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="bg-gradient-to-br from-purple-600 to-purple-800 border-0">
+        <Card className="bg-gradient-to-br from-blue-600 to-blue-800 border-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/90">Toplam Üretim</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/90">Petkim</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalProduction.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-white">{totalPetkim.toFixed(2)}</div>
             <p className="text-xs text-white/80 mt-1">m²</p>
           </CardContent>
         </Card>
