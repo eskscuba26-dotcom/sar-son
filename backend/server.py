@@ -211,6 +211,28 @@ async def create_material(data: dict):
     await db.materials.insert_one(data)
     return {"message": "Created", "id": data['id']}
 
+@api_router.get("/daily-consumption")
+async def get_daily_consumption():
+    consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
+    return consumptions
+
+@api_router.post("/daily-consumption")
+async def create_daily_consumption(data: dict):
+    data['id'] = str(uuid.uuid4())
+    await db.daily_consumption.insert_one(data)
+    return {"message": "Created", "id": data['id']}
+
+@api_router.get("/cost-analysis")
+async def get_cost_analysis():
+    costs = await db.cost_analysis.find({}, {"_id": 0}).to_list(1000)
+    return costs
+
+@api_router.post("/cost-analysis")
+async def create_cost_analysis(data: dict):
+    data['id'] = str(uuid.uuid4())
+    await db.cost_analysis.insert_one(data)
+    return {"message": "Created", "id": data['id']}
+
 @api_router.get("/users")
 async def get_users():
     users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
