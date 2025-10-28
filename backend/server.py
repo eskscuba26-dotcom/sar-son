@@ -141,11 +141,6 @@ async def delete_production(prod_id: str):
 
 
 # ===== Stock Routes =====
-@api_router.get("/stock")
-async def get_stock():
-    # For now, return empty list
-    return []
-
 @api_router.get("/stock/stats", response_model=StockStats)
 async def get_stock_stats():
     # Count productions
