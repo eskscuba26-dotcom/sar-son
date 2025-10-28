@@ -162,22 +162,43 @@ async def get_stock_stats():
     )
 
 
-# ===== Placeholder Routes =====
+# ===== Cut Products Routes =====
 @api_router.get("/cut-products")
 async def get_cut_products():
-    return []
+    cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(1000)
+    return cut_products
 
 @api_router.post("/cut-products")
-async def create_cut_product():
-    return {"message": "Created"}
+async def create_cut_product(data: dict):
+    data['id'] = str(uuid.uuid4())
+    await db.cut_products.insert_one(data)
+    return {"message": "Created", "id": data['id']}
 
+@api_router.delete("/cut-products/{id}")
+async def delete_cut_product(id: str):
+    result = await db.cut_products.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"message": "Deleted"}
+
+# ===== Shipments Routes =====
 @api_router.get("/shipments")
 async def get_shipments():
-    return []
+    shipments = await db.shipments.find({}, {"_id": 0}).to_list(1000)
+    return shipments
 
 @api_router.post("/shipments")
-async def create_shipment():
-    return {"message": "Created"}
+async def create_shipment(data: dict):
+    data['id'] = str(uuid.uuid4())
+    await db.shipments.insert_one(data)
+    return {"message": "Created", "id": data['id']}
+
+@api_router.delete("/shipments/{id}")
+async def delete_shipment(id: str):
+    result = await db.shipments.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"message": "Deleted"}
 
 @api_router.get("/materials")
 async def get_materials():
