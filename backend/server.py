@@ -157,9 +157,16 @@ async def get_stock_stats():
     # Remaining stock
     total_stock = total_produced - total_shipped
     
-    # Calculate cut products TOTAL QUANTITY (not count)
+    # Calculate cut products TOTAL QUANTITY (Üretim - Sevkiyat)
     cut_products_list = await db.cut_products.find({}, {"_id": 0, "quantity": 1}).to_list(1000)
-    cut_products_total = sum(int(cp.get("quantity", 0)) for cp in cut_products_list)
+    cut_products_produced = sum(int(cp.get("quantity", 0)) for cp in cut_products_list)
+    
+    # Kesilmiş ürün sevkiyatlarını düş
+    cut_shipments = [s for s in shipments if s.get("type") == "Kesilmiş"]
+    cut_products_shipped = sum(int(s.get("quantity", 0)) for s in cut_shipments)
+    
+    # Kalan kesilmiş ürün stoğu
+    cut_products_total = cut_products_produced - cut_products_shipped
     
     # Calculate material stocks (Giriş - Tüketim = Kalan)
     # Get materials entries
