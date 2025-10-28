@@ -82,6 +82,17 @@ class StockStats(BaseModel):
         "sari": 0,
     }
 
+# Stock Models
+class StockItem(BaseModel):
+    type: str
+    thickness: str
+    width: str
+    length: str
+    color: str
+    colorCategory: str
+    m2: float
+    quantity: int
+
 
 # ===== Auth Routes =====
 @api_router.post("/auth/login", response_model=UserResponse)
