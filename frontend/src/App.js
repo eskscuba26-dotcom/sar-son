@@ -1,38 +1,114 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
+import logoImage from "./logo.png";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const LoginPage = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Login attempt:", { username, password });
+    // Giriş işlemleri burada yapılacak
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+        <CardHeader className="flex flex-col p-6 space-y-4">
+          <div className="flex justify-center">
+            <img
+              alt="SAR Ambalaj"
+              className="h-24 w-24 object-contain"
+              src={logoImage}
+            />
+          </div>
+          <div className="text-center">
+            <div
+              className="font-semibold tracking-tight text-2xl text-white"
+              style={{ fontFamily: '"Space Grotesk", sans-serif' }}
+            >
+              SAR Ambalaj
+            </div>
+            <div className="text-sm text-slate-400 mt-2">
+              Üretim Yönetim Sistemine Giriş
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="username"
+                className="text-sm font-medium leading-none text-slate-200"
+              >
+                Kullanıcı Adı
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Kullanıcı adınızı girin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="bg-slate-800/50 border-slate-700 text-white"
+                data-testid="username-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium leading-none text-slate-200"
+              >
+                Şifre
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Şifrenizi girin"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-slate-800/50 border-slate-700 text-white pr-10"
+                  data-testid="password-input"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white"
+                  onClick={() => setShowPassword(!showPassword)}
+                  data-testid="toggle-password-btn"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              data-testid="login-submit-btn"
+            >
+              Giriş Yap
+            </Button>
+          </form>
+          <div className="mt-4 text-center text-xs text-slate-500">
+            <p>Varsayılan Admin:</p>
+            <p className="font-mono">admin / SAR2025!</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -42,9 +118,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<LoginPage />} />
         </Routes>
       </BrowserRouter>
     </div>
