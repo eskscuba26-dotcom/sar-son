@@ -347,6 +347,21 @@ async def get_daily_consumption():
         elif 'SARI' in material:
             grouped[key]['fire'] = consumed
     
+    # Üretim verilerinden totalProduction'ı hesapla
+    for key, data in grouped.items():
+        date = data['date']
+        machine = data['machine']
+        
+        # Bu tarih ve makineye ait üretim kayıtlarını bul
+        productions = await db.production.find({
+            'date': date,
+            'machine': machine
+        }, {"_id": 0}).to_list(1000)
+        
+        # Toplam m² hesapla
+        total_m2 = sum(float(p.get('area', 0)) for p in productions)
+        grouped[key]['totalProduction'] = total_m2
+    
     return list(grouped.values())
 
 @api_router.post("/daily-consumption")
