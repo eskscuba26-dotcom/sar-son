@@ -70,7 +70,7 @@ export const CostAnalysis = () => {
             <CardTitle className="text-sm font-medium text-white/90">Toplam Hammadde</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalMaterialCost.toFixed(2)} TL</div>
+            <div className="text-2xl font-bold text-white">{formatCurrency(totalMaterialCost)} TL</div>
             <p className="text-xs text-white/80 mt-1">Petkim, Estol, Talk, Gaz</p>
           </CardContent>
         </Card>
@@ -80,8 +80,8 @@ export const CostAnalysis = () => {
             <CardTitle className="text-sm font-medium text-white/90">Toplam Masura</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalMasuraCost.toFixed(2)} TL</div>
-            <p className="text-xs text-white/80 mt-1">{totalQuantity} adet</p>
+            <div className="text-2xl font-bold text-white">{formatCurrency(totalMasuraCost)} TL</div>
+            <p className="text-xs text-white/80 mt-1">{formatNumber(totalQuantity)} adet</p>
           </CardContent>
         </Card>
 
@@ -90,7 +90,7 @@ export const CostAnalysis = () => {
             <CardTitle className="text-sm font-medium text-white/90">Genel Toplam</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{grandTotal.toFixed(2)} TL</div>
+            <div className="text-2xl font-bold text-white">{formatCurrency(grandTotal)} TL</div>
             <p className="text-xs text-white/80 mt-1">Tüm maliyetler</p>
           </CardContent>
         </Card>
@@ -101,9 +101,9 @@ export const CostAnalysis = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {totalM2 > 0 ? (grandTotal / totalM2).toFixed(2) : '0.00'} TL
+              {totalM2 > 0 ? formatCurrency(grandTotal / totalM2) : '0,00'} TL
             </div>
-            <p className="text-xs text-white/80 mt-1">{totalM2.toFixed(2)} m²</p>
+            <p className="text-xs text-white/80 mt-1">{formatCurrency(totalM2)} m²</p>
           </CardContent>
         </Card>
       </div>
