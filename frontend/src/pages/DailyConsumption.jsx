@@ -141,6 +141,16 @@ export const DailyConsumption = () => {
             <p className="text-xs text-white/80 mt-1">kg</p>
           </CardContent>
         </Card>
+
+        <Card className="bg-gradient-to-br from-red-600 to-red-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Fire</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalFire.toFixed(2)}</div>
+            <p className="text-xs text-white/80 mt-1">kg</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Form */}
