@@ -51,7 +51,7 @@ export const CostAnalysis = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">Maliyet Analizi</h1>
-          <p className="text-slate-400 mt-1">Üretim ve tüketim verilerinden otomatik hesaplanan maliyetler</p>
+          <p className="text-slate-400 mt-1">Her üretim satırı için detaylı maliyet hesabı (Excel formatında)</p>
         </div>
         <Button 
           onClick={() => exportToExcel(filteredData, 'maliyet-analizi')}
