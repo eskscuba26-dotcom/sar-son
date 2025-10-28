@@ -325,8 +325,114 @@ async def create_daily_consumption(data: dict):
 
 @api_router.get("/cost-analysis")
 async def get_cost_analysis():
-    costs = await db.cost_analysis.find({}, {"_id": 0}).to_list(1000)
-    return costs
+    """Tarih bazında gerçek maliyet analizi - Üretim ve günlük tüketim verilerinden"""
+    
+    # 1. Tüm üretim kayıtlarını al
+    productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
+    
+    # 2. Tüm günlük tüketim kayıtlarını al
+    consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
+    
+    # 3. Hammadde fiyatlarını al
+    materials = await db.materials.find({}, {"_id": 0}).to_list(1000)
+    
+    # Hammadde fiyatlarını dictionary'e çevir
+    material_prices = {}
+    for mat in materials:
+        name = mat.get('material', '').upper()
+        if 'PETK' in name or 'PETKİM' in name:
+            material_prices['petkim'] = float(mat.get('unitPrice', 0))
+        elif 'ESTOL' in name:
+            material_prices['estol'] = float(mat.get('unitPrice', 0))
+        elif 'TALK' in name:
+            material_prices['talk'] = float(mat.get('unitPrice', 0))
+        elif 'GAZ' in name:
+            material_prices['gaz'] = float(mat.get('unitPrice', 0))
+        elif 'MASURA' in name:
+            material_prices['masura'] = float(mat.get('unitPrice', 0))
+    
+    # 4. Tarihe göre üretimi grupla
+    production_by_date = {}
+    for prod in productions:
+        date = prod.get('date')
+        if date not in production_by_date:
+            production_by_date[date] = {
+                'productions': [],
+                'total_m2': 0,
+                'total_quantity': 0
+            }
+        production_by_date[date]['productions'].append(prod)
+        production_by_date[date]['total_m2'] += float(prod.get('m2', 0))
+        production_by_date[date]['total_quantity'] += int(prod.get('quantity', 0))
+    
+    # 5. Tarihe göre tüketimi grupla
+    consumption_by_date = {}
+    for cons in consumptions:
+        date = cons.get('date')
+        if date not in consumption_by_date:
+            consumption_by_date[date] = {
+                'petkim': 0,
+                'estol': 0,
+                'talk': 0,
+                'gaz': 0,
+                'fire': 0
+            }
+        consumption_by_date[date]['petkim'] += float(cons.get('petkim', 0))
+        consumption_by_date[date]['estol'] += float(cons.get('estol', 0))
+        consumption_by_date[date]['talk'] += float(cons.get('talk', 0))
+        consumption_by_date[date]['gaz'] += float(cons.get('gaz', 0))
+        consumption_by_date[date]['fire'] += float(cons.get('fire', 0))
+    
+    # 6. Her tarih için maliyet hesapla
+    cost_analysis = []
+    for date, prod_data in production_by_date.items():
+        cons_data = consumption_by_date.get(date, {})
+        
+        # Hammadde maliyetleri
+        material_cost = (
+            cons_data.get('petkim', 0) * material_prices.get('petkim', 0) +
+            cons_data.get('estol', 0) * material_prices.get('estol', 0) +
+            cons_data.get('talk', 0) * material_prices.get('talk', 0) +
+            cons_data.get('gaz', 0) * material_prices.get('gaz', 0)
+        )
+        
+        # Masura maliyeti (üretim adedine göre - her adede 1 masura)
+        masura_cost = prod_data['total_quantity'] * material_prices.get('masura', 0)
+        
+        # Toplam maliyet
+        total_cost = material_cost + masura_cost
+        
+        # Birim maliyetler
+        unit_cost = total_cost / prod_data['total_quantity'] if prod_data['total_quantity'] > 0 else 0
+        m2_cost = total_cost / prod_data['total_m2'] if prod_data['total_m2'] > 0 else 0
+        
+        # Üretim detayları
+        sample_prod = prod_data['productions'][0] if prod_data['productions'] else {}
+        
+        cost_analysis.append({
+            'id': f"{date}",
+            'date': date,
+            'thickness': sample_prod.get('thickness', '-'),
+            'width': sample_prod.get('width', '-'),
+            'length': sample_prod.get('length', '-'),
+            'totalM2': round(prod_data['total_m2'], 2),
+            'totalQuantity': prod_data['total_quantity'],
+            'petkim': round(cons_data.get('petkim', 0), 2),
+            'estol': round(cons_data.get('estol', 0), 2),
+            'talk': round(cons_data.get('talk', 0), 2),
+            'gaz': round(cons_data.get('gaz', 0), 2),
+            'materialCost': round(material_cost, 2),
+            'masuraCost': round(masura_cost, 2),
+            'totalCost': round(total_cost, 2),
+            'unitCost': round(unit_cost, 2),
+            'm2Cost': round(m2_cost, 2),
+            'created_at': '2025-10-28T00:00:00Z'
+        })
+    
+    # Tarihe göre sırala (en yeni önce)
+    cost_analysis.sort(key=lambda x: x['date'], reverse=True)
+    
+    return cost_analysis
 
 @api_router.post("/cost-analysis")
 async def create_cost_analysis(data: dict):
