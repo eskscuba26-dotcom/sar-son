@@ -426,8 +426,10 @@ async def get_cost_analysis():
             prod_gaz * material_prices['gaz']
         )
         
-        # Masura maliyeti (adet bazında)
-        masura_cost = quantity * material_prices['masura']
+        # Masura maliyeti (Bu üretim satırının masura tipine göre!)
+        masura_type = prod.get('masuraType', '')
+        masura_unit_price = masura_prices.get(masura_type, 0)
+        masura_cost = quantity * masura_unit_price
         
         # Toplam maliyet
         total_cost = material_cost + masura_cost
