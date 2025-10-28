@@ -7,11 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { shipmentApi, productionApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Download, Filter } from 'lucide-react';
+import { Trash2, Download, Filter, Edit2 } from 'lucide-react';
 
 export const Shipment = () => {
   const [shipments, setShipments] = useState([]);
   const [productions, setProductions] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     customer: '',
