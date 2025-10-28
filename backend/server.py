@@ -372,6 +372,23 @@ async def get_excel_data():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Excel okuma hatası: {str(e)}")
 
+@api_router.get("/download-excel")
+async def download_excel():
+    """Orijinal Excel dosyasını indir"""
+    from fastapi.responses import FileResponse
+    import os
+    
+    excel_file = "/tmp/SAR-2025-Original.xlsx"
+    
+    if not os.path.exists(excel_file):
+        raise HTTPException(status_code=404, detail="Excel dosyası bulunamadı")
+    
+    return FileResponse(
+        path=excel_file,
+        filename="SAR-2025.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 @api_router.get("/exchange-rates")
 async def get_exchange_rates():
     rate = await db.exchange_rates.find_one({}, {"_id": 0})
