@@ -245,12 +245,22 @@ async def get_stock_stats():
     material_stocks["talk"] = round(material_stocks["talk"], 2)
     material_stocks["sari"] = round(material_stocks["sari"], 2)
     
-    return StockStats(
-        totalStock=total_stock,
-        cutProducts=cut_products_total,
-        productions=production_count,
-        materials=material_stocks
-    )
+    return {
+        "totalStock": total_stock,
+        "cutProducts": cut_products_total,
+        "totalProductions": production_count,
+        "materials": {
+            "gaz": round(material_stocks["gaz"], 2),
+            "petkim": round(material_stocks["petkim"], 2),
+            "estol": round(material_stocks["estol"], 2),
+            "talk": round(material_stocks["talk"], 2),
+            "masura100": material_stocks["masura100"],
+            "masura120": material_stocks["masura120"],
+            "masura150": material_stocks["masura150"],
+            "masura200": material_stocks["masura200"],
+            "sari": round(material_stocks["sari"], 2),
+        },
+    }
 
 
 # ===== Cut Products Routes =====
