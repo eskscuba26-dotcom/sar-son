@@ -140,9 +140,16 @@ async def get_stock_stats():
     # Count productions
     production_count = await db.productions.count_documents({})
     
-    # Calculate total stock from productions
+    # Calculate total stock: Productions - Normal Shipments
     productions = await db.productions.find({}, {"_id": 0, "quantity": 1}).to_list(1000)
-    total_stock = sum(p.get("quantity", 0) for p in productions)
+    total_produced = sum(p.get("quantity", 0) for p in productions)
+    
+    # Get normal shipments
+    shipments = await db.shipments.find({}, {"_id": 0, "type": 1, "quantity": 1}).to_list(1000)
+    total_shipped = sum(int(s.get("quantity", 0)) for s in shipments if s.get("type") == "Normal")
+    
+    # Remaining stock
+    total_stock = total_produced - total_shipped
     
     # Count cut products
     cut_products_count = await db.cut_products.count_documents({})
@@ -188,7 +195,7 @@ async def get_stock_stats():
             material_stocks["masura150"] += quantity
         elif "MASURA 200" in material_name:
             material_stocks["masura200"] += quantity
-        elif "SARI" in material_name:
+        elif "SARI" in material_name or "SARI" in material_name.upper():
             material_stocks["sari"] += quantity
     
     # Subtract daily consumption (Çıkış)
@@ -204,7 +211,7 @@ async def get_stock_stats():
             material_stocks["estol"] -= consumed
         elif "TALK" in material_name:
             material_stocks["talk"] -= consumed
-        elif "SARI" in material_name:
+        elif "SARI" in material_name or "SARI" in material_name.upper():
             material_stocks["sari"] -= consumed
     
     # Subtract masura usage from productions
