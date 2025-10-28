@@ -341,6 +341,140 @@ async def update_exchange_rates(data: dict):
 async def root():
     return {"message": "SAR Ambalaj API v1.0"}
 
+# ===== Stock Routes =====
+@api_router.get("/stock")
+async def get_stock():
+    """
+    Dinamik stok hesaplama:
+    Stok = Üretim - Sevkiyat
+    Ürün tipine, kalınlığa, ene, metreye, renge göre gruplandırılmış
+    """
+    try:
+        # 1. Tüm üretim kayıtlarını al
+        productions = await db.productions.find({}).to_list(None)
+        
+        # 2. Tüm sevkiyat kayıtlarını al
+        shipments = await db.shipments.find({}).to_list(None)
+        
+        # 3. Üretim verilerini grupla
+        production_groups = {}
+        for prod in productions:
+            # Key oluştur: kalınlık_en_metre_renk
+            key = f"{prod.get('thickness', '')}_{prod.get('width', '')}_{prod.get('length', '')}_{prod.get('color', '')}"
+            
+            if key not in production_groups:
+                production_groups[key] = {
+                    'type': 'Normal',
+                    'thickness': prod.get('thickness', ''),
+                    'width': prod.get('width', ''),
+                    'length': prod.get('length', ''),
+                    'color': prod.get('color', ''),
+                    'colorCategory': prod.get('colorCategory', ''),
+                    'm2': prod.get('m2', 0),
+                    'quantity': 0
+                }
+            
+            production_groups[key]['quantity'] += prod.get('quantity', 0)
+        
+        # 4. Sevkiyat verilerini grupla
+        shipment_groups = {}
+        for ship in shipments:
+            # Sevkiyat size'ından kalınlık, en, metre çıkar
+            size = ship.get('size', '')
+            ship_type = ship.get('type', 'Normal')
+            color = ship.get('color', '')
+            
+            # Size parsing: "2mm x 100cm x 300m" veya "1.8mm x 50cm x 137.5cm"
+            parts = size.split(' x ')
+            if len(parts) >= 3:
+                thickness = parts[0].replace('mm', '').strip()
+                width = parts[1].replace('cm', '').strip()
+                length_part = parts[2].strip()
+                
+                # Key oluştur
+                key = f"{thickness} mm_{width}_{length_part}_{color}"
+                
+                if key not in shipment_groups:
+                    shipment_groups[key] = 0
+                
+                shipment_groups[key] += int(ship.get('quantity', 0))
+        
+        # 5. Stok hesapla (Üretim - Sevkiyat)
+        stock_items = []
+        for key, prod_data in production_groups.items():
+            quantity = prod_data['quantity']
+            
+            # Sevkiyatı düş
+            if key in shipment_groups:
+                quantity -= shipment_groups[key]
+            
+            # Sadece stokta olan veya negatif olanları göster
+            if quantity != 0:
+                stock_items.append({
+                    'type': prod_data['type'],
+                    'thickness': prod_data['thickness'],
+                    'width': prod_data['width'],
+                    'length': prod_data['length'],
+                    'color': prod_data['color'],
+                    'colorCategory': prod_data['colorCategory'],
+                    'm2': prod_data['m2'],
+                    'quantity': quantity
+                })
+        
+        # 6. Kesilmiş ürünleri ekle
+        cut_products = await db.cut_products.find({}).to_list(None)
+        cut_groups = {}
+        
+        for cut in cut_products:
+            cut_size = cut.get('cutSize', '')
+            color = cut.get('color', '')
+            
+            key = f"cut_{cut_size}_{color}"
+            
+            if key not in cut_groups:
+                # cutSize parsing: "1.8mm x 50cm x 137.5cm"
+                parts = cut_size.split(' x ')
+                if len(parts) >= 3:
+                    cut_groups[key] = {
+                        'type': 'Kesilmiş',
+                        'thickness': parts[0].replace('mm', '').strip(),
+                        'width': parts[1].replace('cm', '').strip(),
+                        'length': parts[2].strip(),
+                        'color': color,
+                        'colorCategory': cut.get('colorCategory', 'Doğal'),
+                        'm2': 0.69,  # Kesilmiş ürün m2
+                        'quantity': 0
+                    }
+            
+            cut_groups[key]['quantity'] += int(cut.get('quantity', 0))
+        
+        # Kesilmiş ürün sevkiyatlarını düş
+        for ship in shipments:
+            if ship.get('type') == 'Kesilmiş':
+                size = ship.get('size', '')
+                color = ship.get('color', '')
+                key = f"cut_{size}_{color}"
+                
+                if key in cut_groups:
+                    cut_groups[key]['quantity'] -= int(ship.get('quantity', 0))
+        
+        # Kesilmiş ürünleri stock_items'a ekle
+        for cut_data in cut_groups.values():
+            if cut_data['quantity'] != 0:
+                stock_items.append(cut_data)
+        
+        # 7. Sırala (önce tip, sonra kalınlık)
+        stock_items.sort(key=lambda x: (
+            0 if x['type'] == 'Normal' else 1,
+            float(x['thickness']) if x['thickness'] else 0,
+            int(x['width']) if x['width'] else 0
+        ))
+        
+        return stock_items
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
