@@ -469,10 +469,23 @@ async def get_stock():
                 stock_items.append(cut_data)
         
         # 7. Sırala (önce tip, sonra kalınlık)
+        def safe_float(val):
+            try:
+                # "2 mm" -> "2" -> 2.0
+                return float(str(val).replace(' mm', '').replace('mm', '').strip())
+            except:
+                return 0.0
+        
+        def safe_int(val):
+            try:
+                return int(str(val).strip())
+            except:
+                return 0
+        
         stock_items.sort(key=lambda x: (
             0 if x['type'] == 'Normal' else 1,
-            float(x['thickness']) if x['thickness'] else 0,
-            int(x['width']) if x['width'] else 0
+            safe_float(x.get('thickness', '')),
+            safe_int(x.get('width', ''))
         ))
         
         return stock_items
