@@ -283,6 +283,7 @@ export const DailyConsumption = () => {
                   <TableHead className="text-slate-300">Estol (kg)</TableHead>
                   <TableHead className="text-slate-300">Talk (kg)</TableHead>
                   <TableHead className="text-slate-300">Gaz (kg)</TableHead>
+                  <TableHead className="text-slate-300">Fire (kg)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
