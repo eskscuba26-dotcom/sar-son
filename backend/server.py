@@ -202,15 +202,32 @@ async def delete_shipment(id: str):
 
 @api_router.get("/materials")
 async def get_materials():
-    return []
+    materials = await db.materials.find({}, {"_id": 0}).to_list(1000)
+    return materials
+
+@api_router.post("/materials")
+async def create_material(data: dict):
+    data['id'] = str(uuid.uuid4())
+    await db.materials.insert_one(data)
+    return {"message": "Created", "id": data['id']}
 
 @api_router.get("/users")
 async def get_users():
-    return []
+    users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
+    return users
 
 @api_router.get("/exchange-rates")
 async def get_exchange_rates():
-    return {"usd": 0, "eur": 0}
+    rate = await db.exchange_rates.find_one({}, {"_id": 0})
+    if rate:
+        return {"usd": rate.get('usd', 0), "eur": rate.get('eur', 0), "lastUpdated": rate.get('lastUpdated', '')}
+    return {"usd": 42.00, "eur": 48.00}
+
+@api_router.put("/exchange-rates")
+async def update_exchange_rates(data: dict):
+    data['lastUpdated'] = datetime.now(timezone.utc).isoformat()
+    await db.exchange_rates.update_one({}, {"$set": data}, upsert=True)
+    return {"message": "Updated"}
 
 
 # ===== Root Route =====
