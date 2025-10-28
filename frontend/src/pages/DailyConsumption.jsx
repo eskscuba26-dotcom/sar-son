@@ -58,7 +58,6 @@ export const DailyConsumption = () => {
       setFormData({
         date: new Date().toISOString().split('T')[0],
         machine: '',
-        totalProduction: '',
         petkim: '',
         estol: '',
         talk: '',
