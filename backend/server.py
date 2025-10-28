@@ -333,26 +333,40 @@ async def get_cost_analysis():
     # 2. Günlük tüketim verilerini al
     consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
     
-    # 3. Hammadde fiyatlarını al
+    # 3. Hammadde fiyatlarını ve döviz kurlarını al
     materials = await db.materials.find({}, {"_id": 0}).to_list(1000)
+    exchange_rates = await db.exchange_rates.find_one({}, {"_id": 0})
     
-    # Hammadde birim fiyatları
+    usd_rate = float(exchange_rates.get('usd', 1)) if exchange_rates else 1
+    eur_rate = float(exchange_rates.get('eur', 1)) if exchange_rates else 1
+    
+    # Hammadde birim fiyatları (TL'ye çevrilmiş)
     material_prices = {
         'petkim': 0, 'estol': 0, 'talk': 0, 'gaz': 0, 'masura': 0
     }
     for mat in materials:
         name = mat.get('material', '').upper()
         price = float(mat.get('unitPrice', 0))
+        currency = mat.get('currency', 'TL')
+        
+        # Dövizi TL'ye çevir
+        if currency == 'USD':
+            price_tl = price * usd_rate
+        elif currency == 'EUR':
+            price_tl = price * eur_rate
+        else:
+            price_tl = price
+        
         if 'PETK' in name or 'PETKİM' in name:
-            material_prices['petkim'] = price
+            material_prices['petkim'] = price_tl
         elif 'ESTOL' in name:
-            material_prices['estol'] = price
+            material_prices['estol'] = price_tl
         elif 'TALK' in name:
-            material_prices['talk'] = price
+            material_prices['talk'] = price_tl
         elif 'GAZ' in name:
-            material_prices['gaz'] = price
+            material_prices['gaz'] = price_tl
         elif 'MASURA' in name:
-            material_prices['masura'] = price
+            material_prices['masura'] = price_tl
     
     # 4. Tarihe ve makineye göre günlük tüketimi grupla
     consumption_by_date_machine = {}
