@@ -2,45 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Download, TrendingUp } from 'lucide-react';
+import { Download, TrendingUp, DollarSign } from 'lucide-react';
 import axios from 'axios';
+import { exportToExcel } from '@/utils/exportToExcel';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const CostAnalysis = () => {
   const [costData, setCostData] = useState([]);
-  const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
-    product: '',
-    materialCost: '',
-    laborCost: '',
-    energyCost: '',
-    otherCost: '',
-    totalCost: 0,
-    quantity: '',
-    unitCost: 0,
-  });
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     fetchCostData();
   }, []);
-
-  useEffect(() => {
-    const { materialCost, laborCost, energyCost, otherCost, quantity } = formData;
-    const total = (parseFloat(materialCost) || 0) + (parseFloat(laborCost) || 0) + 
-                  (parseFloat(energyCost) || 0) + (parseFloat(otherCost) || 0);
-    const unit = quantity > 0 ? (total / parseFloat(quantity)) : 0;
-    setFormData(prev => ({ 
-      ...prev, 
-      totalCost: total.toFixed(2),
-      unitCost: unit.toFixed(2)
-    }));
-  }, [formData.materialCost, formData.laborCost, formData.energyCost, formData.otherCost, formData.quantity]);
 
   const fetchCostData = async () => {
     try {
@@ -48,42 +26,24 @@ export const CostAnalysis = () => {
       setCostData(response.data);
     } catch (error) {
       console.error('Fetch error:', error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API}/cost-analysis`, formData);
-      toast({
-        title: 'Başarılı',
-        description: 'Maliyet kaydı eklendi',
-      });
-      fetchCostData();
-      setFormData({
-        date: new Date().toISOString().split('T')[0],
-        product: '',
-        materialCost: '',
-        laborCost: '',
-        energyCost: '',
-        otherCost: '',
-        totalCost: 0,
-        quantity: '',
-        unitCost: 0,
-      });
-    } catch (error) {
       toast({
         title: 'Hata',
-        description: 'Maliyet kaydı eklenirken hata oluştu',
+        description: 'Maliyet verileri yüklenemedi',
         variant: 'destructive',
       });
     }
   };
 
+  const filteredData = costData.filter(item =>
+    item.date?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.thickness?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const totalMaterialCost = costData.reduce((sum, item) => sum + parseFloat(item.materialCost || 0), 0);
-  const totalLaborCost = costData.reduce((sum, item) => sum + parseFloat(item.laborCost || 0), 0);
-  const totalEnergyCost = costData.reduce((sum, item) => sum + parseFloat(item.energyCost || 0), 0);
+  const totalMasuraCost = costData.reduce((sum, item) => sum + parseFloat(item.masuraCost || 0), 0);
   const grandTotal = costData.reduce((sum, item) => sum + parseFloat(item.totalCost || 0), 0);
+  const totalM2 = costData.reduce((sum, item) => sum + parseFloat(item.totalM2 || 0), 0);
+  const totalQuantity = costData.reduce((sum, item) => sum + parseInt(item.totalQuantity || 0), 0);
 
   return (
     <div className="space-y-6" data-testid="cost-analysis-page">
