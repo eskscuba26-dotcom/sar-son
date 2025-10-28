@@ -222,7 +222,6 @@ async def get_stock_stats():
             material_stocks["masura200"] -= quantity
     
     # Round to 2 decimals for float values
-    material_stocks["gaz"] = round(material_stocks["gaz"], 2)
     material_stocks["petkim"] = round(material_stocks["petkim"], 2)
     material_stocks["estol"] = round(material_stocks["estol"], 2)
     material_stocks["talk"] = round(material_stocks["talk"], 2)
@@ -230,7 +229,7 @@ async def get_stock_stats():
     
     return StockStats(
         totalStock=total_stock,
-        cutProducts=cut_products_total,  # CHANGED: now shows total quantity, not count
+        cutProducts=cut_products_total,
         productions=production_count,
         materials=material_stocks
     )
