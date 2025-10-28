@@ -339,6 +339,39 @@ async def get_users():
     users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
     return users
 
+@api_router.get("/excel-viewer")
+async def get_excel_data():
+    """Excel dosyasını okuyup JSON olarak döndür"""
+    import pandas as pd
+    
+    try:
+        excel_file = "/tmp/SAR-2025-Original.xlsx"
+        
+        # Excel'i oku
+        xls = pd.ExcelFile(excel_file)
+        
+        result = {
+            "sheets": [],
+            "filename": "SAR-2025.xlsx"
+        }
+        
+        # Her sheet'i oku
+        for sheet_name in xls.sheet_names:
+            df = pd.read_excel(excel_file, sheet_name=sheet_name)
+            
+            # DataFrame'i dictionary'e çevir
+            sheet_data = {
+                "name": sheet_name,
+                "columns": df.columns.tolist(),
+                "data": df.values.tolist()
+            }
+            
+            result["sheets"].append(sheet_data)
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Excel okuma hatası: {str(e)}")
+
 @api_router.get("/exchange-rates")
 async def get_exchange_rates():
     rate = await db.exchange_rates.find_one({}, {"_id": 0})
