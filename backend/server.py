@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -26,45 +26,176 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+# ===== Models =====
+
+# Auth Models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    role: str = "admin"
+
+# Production Models
+class ProductionCreate(BaseModel):
+    date: str
+    machine: str
+    thickness: str
+    width: str
+    length: str
+    m2: float
+    quantity: int
+    masuraType: str
+    color: str
+    colorCategory: str
+
+class Production(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    date: str
+    machine: str
+    thickness: str
+    width: str
+    length: str
+    m2: float
+    quantity: int
+    masuraType: str
+    color: str
+    colorCategory: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+# Stock Stats Model
+class StockStats(BaseModel):
+    totalStock: int = 0
+    cutProducts: int = 0
+    productions: int = 0
+    materials: dict = {
+        "gaz": 0,
+        "petkim": 0,
+        "estol": 0,
+        "talk": 0,
+        "masura100": 0,
+        "masura120": 0,
+        "masura150": 0,
+        "masura200": 0,
+        "sari": 0,
+    }
 
-# Add your routes to the router instead of directly to app
+
+# ===== Auth Routes =====
+@api_router.post("/auth/login", response_model=UserResponse)
+async def login(request: LoginRequest):
+    # Simple auth for now - check against default admin
+    if request.username == "admin" and request.password == "SAR2025!":
+        return UserResponse(
+            id=str(uuid.uuid4()),
+            username=request.username,
+            role="admin"
+        )
+    raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre hatalı")
+
+
+# ===== Production Routes =====
+@api_router.get("/production", response_model=List[Production])
+async def get_productions():
+    productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
+    return productions
+
+@api_router.post("/production", response_model=Production)
+async def create_production(production: ProductionCreate):
+    prod_dict = production.model_dump()
+    prod_obj = Production(**prod_dict)
+    
+    doc = prod_obj.model_dump()
+    await db.productions.insert_one(doc)
+    return prod_obj
+
+@api_router.put("/production/{prod_id}")
+async def update_production(prod_id: str, production: ProductionCreate):
+    result = await db.productions.update_one(
+        {"id": prod_id},
+        {"$set": production.model_dump()}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Production not found")
+    return {"message": "Updated successfully"}
+
+@api_router.delete("/production/{prod_id}")
+async def delete_production(prod_id: str):
+    result = await db.productions.delete_one({"id": prod_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Production not found")
+    return {"message": "Deleted successfully"}
+
+
+# ===== Stock Routes =====
+@api_router.get("/stock")
+async def get_stock():
+    # For now, return empty list
+    return []
+
+@api_router.get("/stock/stats", response_model=StockStats)
+async def get_stock_stats():
+    # Count productions
+    production_count = await db.productions.count_documents({})
+    
+    # Calculate total stock from productions
+    productions = await db.productions.find({}, {"_id": 0, "quantity": 1}).to_list(1000)
+    total_stock = sum(p.get("quantity", 0) for p in productions)
+    
+    return StockStats(
+        totalStock=total_stock,
+        cutProducts=0,
+        productions=production_count,
+        materials={
+            "gaz": 0,
+            "petkim": 0,
+            "estol": 0,
+            "talk": 0,
+            "masura100": 0,
+            "masura120": 0,
+            "masura150": 0,
+            "masura200": 0,
+            "sari": 0,
+        }
+    )
+
+
+# ===== Placeholder Routes =====
+@api_router.get("/cut-products")
+async def get_cut_products():
+    return []
+
+@api_router.post("/cut-products")
+async def create_cut_product():
+    return {"message": "Created"}
+
+@api_router.get("/shipments")
+async def get_shipments():
+    return []
+
+@api_router.post("/shipments")
+async def create_shipment():
+    return {"message": "Created"}
+
+@api_router.get("/materials")
+async def get_materials():
+    return []
+
+@api_router.get("/users")
+async def get_users():
+    return []
+
+@api_router.get("/exchange-rates")
+async def get_exchange_rates():
+    return {"usd": 0, "eur": 0}
+
+
+# ===== Root Route =====
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+    return {"message": "SAR Ambalaj API v1.0"}
 
 # Include the router in the main app
 app.include_router(api_router)
