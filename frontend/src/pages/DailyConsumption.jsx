@@ -29,6 +29,15 @@ export const DailyConsumption = () => {
     fetchConsumptions();
   }, []);
 
+  useEffect(() => {
+    setTotalProduction(consumptions.reduce((sum, item) => sum + parseFloat(item.totalProduction || 0), 0));
+    setTotalPetkim(consumptions.reduce((sum, item) => sum + parseFloat(item.petkim || 0), 0));
+    setTotalEstol(consumptions.reduce((sum, item) => sum + parseFloat(item.estol || 0), 0));
+    setTotalTalk(consumptions.reduce((sum, item) => sum + parseFloat(item.talk || 0), 0));
+    setTotalFire(consumptions.reduce((sum, item) => sum + parseFloat(item.fire || 0), 0));
+    setTotalGaz(consumptions.reduce((sum, item) => sum + parseFloat(item.gaz || 0), 0));
+  }, [consumptions]);
+
   const fetchConsumptions = async () => {
     try {
       const response = await axios.get(`${API}/daily-consumption`);
