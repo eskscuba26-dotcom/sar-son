@@ -227,12 +227,12 @@ export const DailyConsumption = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-200">Fire (kg)</Label>
+                <Label className="text-slate-200">Gaz (kg)</Label>
                 <Input
                   type="number"
                   step="0.01"
-                  value={formData.fire}
-                  onChange={(e) => setFormData({ ...formData, fire: e.target.value })}
+                  value={formData.gaz}
+                  onChange={(e) => setFormData({ ...formData, gaz: e.target.value })}
                   className="bg-slate-800/50 border-slate-700 text-white"
                 />
               </div>
