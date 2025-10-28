@@ -394,10 +394,9 @@ async def get_stock():
             if len(parts) >= 3:
                 thickness_raw = parts[0].replace('mm', '').strip()
                 width_raw = parts[1].replace('cm', '').strip()
-                length_raw = parts[2].replace('m', '').strip()
+                length_raw = parts[2].replace('m', '').replace('cm', '').strip()  # m veya cm'yi temizle
                 
-                # Üretimde thickness "2 mm" formatında, sevkiyatta "2" formatında
-                # Key için üretim formatını kullan
+                # Üretimde thickness "2 mm" formatında
                 thickness = f"{thickness_raw} mm"
                 width = width_raw
                 length = length_raw
