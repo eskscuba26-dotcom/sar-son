@@ -303,6 +303,7 @@ export const DailyConsumption = () => {
                       <TableCell className="text-teal-400">{parseFloat(item.estol).toFixed(2)}</TableCell>
                       <TableCell className="text-cyan-400">{parseFloat(item.talk).toFixed(2)}</TableCell>
                       <TableCell className="text-orange-400">{parseFloat(item.gaz || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-red-400 font-semibold">{parseFloat(item.fire || 0).toFixed(2)}</TableCell>
                     </TableRow>
                   ))
                 )}
