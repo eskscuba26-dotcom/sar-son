@@ -47,17 +47,76 @@ export const CostAnalysis = () => {
 
   return (
     <div className="space-y-6" data-testid="cost-analysis-page">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Maliyet Analizi</h1>
-        <p className="text-slate-400 mt-1">Üretim maliyetlerini analiz edin</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Maliyet Analizi</h1>
+          <p className="text-slate-400 mt-1">Üretim maliyetlerini tarihe göre analiz edin (Otomatik Hesaplama)</p>
+        </div>
+        <Button 
+          onClick={() => exportToExcel(filteredData, 'maliyet-analizi')}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Excel'e Aktar
+        </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-600 to-blue-800 border-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-white/90">Toplam Hammadde</CardTitle>
           </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalMaterialCost.toFixed(2)} TL</div>
+            <p className="text-xs text-white/80 mt-1">Petkim, Estol, Talk, Gaz</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-600 to-purple-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Toplam Masura</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalMasuraCost.toFixed(2)} TL</div>
+            <p className="text-xs text-white/80 mt-1">{totalQuantity} adet</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-emerald-600 to-emerald-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Genel Toplam</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{grandTotal.toFixed(2)} TL</div>
+            <p className="text-xs text-white/80 mt-1">Tüm maliyetler</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-600 to-orange-800 border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-white/90">Ortalama m² Maliyet</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">
+              {totalM2 > 0 ? (grandTotal / totalM2).toFixed(2) : '0.00'} TL
+            </div>
+            <p className="text-xs text-white/80 mt-1">{totalM2.toFixed(2)} m² toplam</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Arama */}
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardContent className="pt-6">
+          <Input
+            placeholder="Tarih veya kalınlık ile ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-slate-800/50 border-slate-700 text-white"
+          />
+        </CardContent>
+      </Card>
           <CardContent>
             <div className="text-2xl font-bold text-white">{totalMaterialCost.toFixed(2)} TL</div>
           </CardContent>
