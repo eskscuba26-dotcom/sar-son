@@ -276,12 +276,11 @@ export const DailyConsumption = () => {
                 <TableRow className="border-slate-800 hover:bg-slate-800/50">
                   <TableHead className="text-slate-300">Tarih</TableHead>
                   <TableHead className="text-slate-300">Makine</TableHead>
-                  <TableHead className="text-slate-300">Toplam Üretim (m²)</TableHead>
                   <TableHead className="text-slate-300">Petkim (kg)</TableHead>
                   <TableHead className="text-slate-300">Estol (kg)</TableHead>
                   <TableHead className="text-slate-300">Talk (kg)</TableHead>
-                  <TableHead className="text-slate-300">Gaz (kg)</TableHead>
                   <TableHead className="text-slate-300">Fire (kg)</TableHead>
+                  <TableHead className="text-slate-300">Gaz (kg)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -296,12 +295,11 @@ export const DailyConsumption = () => {
                     <TableRow key={item.id} className="border-slate-800 hover:bg-slate-800/50">
                       <TableCell className="text-slate-300">{item.date}</TableCell>
                       <TableCell className="text-slate-300">{item.machine}</TableCell>
-                      <TableCell className="text-purple-400 font-semibold">{parseFloat(item.totalProduction).toFixed(2)}</TableCell>
-                      <TableCell className="text-blue-400 font-semibold">{parseFloat(item.petkim).toFixed(2)}</TableCell>
-                      <TableCell className="text-teal-400">{parseFloat(item.estol).toFixed(2)}</TableCell>
-                      <TableCell className="text-cyan-400">{parseFloat(item.talk).toFixed(2)}</TableCell>
-                      <TableCell className="text-orange-400">{parseFloat(item.gaz || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-blue-400 font-semibold">{parseFloat(item.petkim || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-teal-400">{parseFloat(item.estol || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-cyan-400">{parseFloat(item.talk || 0).toFixed(2)}</TableCell>
                       <TableCell className="text-red-400 font-semibold">{parseFloat(item.fire || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-orange-400">{parseFloat(item.gaz || 0).toFixed(2)}</TableCell>
                     </TableRow>
                   ))
                 )}
