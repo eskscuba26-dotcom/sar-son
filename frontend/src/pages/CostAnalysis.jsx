@@ -165,19 +165,19 @@ export const CostAnalysis = () => {
                       <TableCell className="text-slate-300">{item.thickness}</TableCell>
                       <TableCell className="text-slate-300">{item.width}</TableCell>
                       <TableCell className="text-slate-300">{item.length}</TableCell>
-                      <TableCell className="text-blue-400 font-semibold">{item.m2}</TableCell>
-                      <TableCell className="text-purple-400 font-semibold">{item.quantity}</TableCell>
+                      <TableCell className="text-blue-400 font-semibold">{formatCurrency(item.m2)}</TableCell>
+                      <TableCell className="text-purple-400 font-semibold">{formatNumber(item.quantity)}</TableCell>
                       <TableCell className="text-slate-300 text-xs">{item.masuraType}</TableCell>
                       <TableCell className="text-slate-300 text-xs">{item.color}</TableCell>
-                      <TableCell className="text-slate-300">{item.petkim}</TableCell>
-                      <TableCell className="text-slate-300">{item.estol}</TableCell>
-                      <TableCell className="text-slate-300">{item.talk}</TableCell>
-                      <TableCell className="text-slate-300">{item.gaz}</TableCell>
-                      <TableCell className="text-emerald-400">{item.materialCost} TL</TableCell>
-                      <TableCell className="text-amber-400">{item.masuraCost} TL</TableCell>
-                      <TableCell className="text-blue-400 font-bold">{item.totalCost} TL</TableCell>
-                      <TableCell className="text-emerald-400 font-bold">{item.unitCost} TL</TableCell>
-                      <TableCell className="text-orange-400 font-bold">{item.m2Cost} TL</TableCell>
+                      <TableCell className="text-slate-300">{formatCurrency(item.petkim)}</TableCell>
+                      <TableCell className="text-slate-300">{formatCurrency(item.estol)}</TableCell>
+                      <TableCell className="text-slate-300">{formatCurrency(item.talk)}</TableCell>
+                      <TableCell className="text-slate-300">{formatCurrency(item.gaz)}</TableCell>
+                      <TableCell className="text-emerald-400">{formatCurrency(item.materialCost)} TL</TableCell>
+                      <TableCell className="text-amber-400">{formatCurrency(item.masuraCost)} TL</TableCell>
+                      <TableCell className="text-blue-400 font-bold">{formatCurrency(item.totalCost)} TL</TableCell>
+                      <TableCell className="text-emerald-400 font-bold">{formatCurrency(item.unitCost)} TL</TableCell>
+                      <TableCell className="text-orange-400 font-bold">{formatCurrency(item.m2Cost)} TL</TableCell>
                     </TableRow>
                   ))
                 )}
