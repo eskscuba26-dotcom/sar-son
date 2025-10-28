@@ -65,11 +65,12 @@ export const DailyConsumption = () => {
     }
   };
 
-  const totalProduction = consumptions.reduce((sum, item) => sum + parseFloat(item.totalProduction || 0), 0);
-  const totalPetkim = consumptions.reduce((sum, item) => sum + parseFloat(item.petkim || 0), 0);
-  const totalEstol = consumptions.reduce((sum, item) => sum + parseFloat(item.estol || 0), 0);
-  const totalTalk = consumptions.reduce((sum, item) => sum + parseFloat(item.talk || 0), 0);
-  const totalFire = consumptions.reduce((sum, item) => sum + parseFloat(item.fire || 0), 0);
+  const [totalProduction, setTotalProduction] = useState(0);
+  const [totalPetkim, setTotalPetkim] = useState(0);
+  const [totalEstol, setTotalEstol] = useState(0);
+  const [totalTalk, setTotalTalk] = useState(0);
+  const [totalFire, setTotalFire] = useState(0);
+  const [totalGaz, setTotalGaz] = useState(0);
 
   return (
     <div className="space-y-6" data-testid="daily-consumption-page">
