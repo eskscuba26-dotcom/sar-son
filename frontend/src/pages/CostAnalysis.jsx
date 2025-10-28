@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Download, DollarSign } from 'lucide-react';
 import axios from 'axios';
 import { exportToExcel } from '@/utils/exportToExcel';
+import { formatCurrency, formatNumber } from '@/utils/formatCurrency';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
