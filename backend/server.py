@@ -427,8 +427,15 @@ async def get_cost_analysis():
         )
         
         # Masura maliyeti (Bu üretim satırının masura tipine göre!)
-        masura_type = prod.get('masuraType', '')
-        masura_unit_price = masura_prices.get(masura_type, 0)
+        masura_type = prod.get('masuraType', '').upper().strip()
+        masura_unit_price = 0
+        
+        # Masura fiyatını bul (büyük/küçük harf duyarsız)
+        for masura_name, masura_price in masura_prices.items():
+            if masura_name.upper().strip() == masura_type:
+                masura_unit_price = masura_price
+                break
+        
         masura_cost = quantity * masura_unit_price
         
         # Toplam maliyet
