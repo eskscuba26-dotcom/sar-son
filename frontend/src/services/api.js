@@ -53,3 +53,14 @@ export const exchangeRateApi = {
   get: () => axios.get(`${API}/exchange-rates`),
   update: (data) => axios.put(`${API}/exchange-rates`, data),
 };
+
+// Default export with all APIs
+export const api = {
+  production: productionApi,
+  stock: stockApi,
+  cutProduct: cutProductApi,
+  shipment: shipmentApi,
+  material: materialApi,
+  user: userApi,
+  exchangeRate: exchangeRateApi,
+};
