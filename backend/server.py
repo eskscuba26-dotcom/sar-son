@@ -316,6 +316,17 @@ async def create_material(data: dict):
 async def get_daily_consumption():
     consumptions = await db.daily_consumption.find({}, {"_id": 0}).to_list(1000)
     
+    # Tüm üretim verilerini çek
+    all_productions = await db.production.find({}, {"_id": 0, "date": 1, "machine": 1, "m2": 1}).to_list(1000)
+    
+    # Üretim verilerini tarihe ve makineye göre topla
+    production_totals = {}
+    for prod in all_productions:
+        key = f"{prod.get('date')}_{prod.get('machine')}"
+        if key not in production_totals:
+            production_totals[key] = 0
+        production_totals[key] += float(prod.get('m2', 0))
+    
     # Tarihe ve makineye göre grupla
     grouped = {}
     for item in consumptions:
@@ -325,7 +336,7 @@ async def get_daily_consumption():
                 'id': item.get('id'),
                 'date': item.get('date'),
                 'machine': item.get('machine'),
-                'totalProduction': 0,
+                'totalProduction': production_totals.get(key, 0),  # Üretim verisini ekle
                 'petkim': 0,
                 'estol': 0,
                 'talk': 0,
@@ -346,21 +357,6 @@ async def get_daily_consumption():
             grouped[key]['gaz'] = consumed
         elif 'SARI' in material:
             grouped[key]['fire'] = consumed
-    
-    # Üretim verilerinden totalProduction'ı hesapla
-    for key, data in grouped.items():
-        date = data['date']
-        machine = data['machine']
-        
-        # Bu tarih ve makineye ait üretim kayıtlarını bul
-        productions = await db.production.find({
-            'date': date,
-            'machine': machine
-        }, {"_id": 0}).to_list(1000)
-        
-        # Toplam m² hesapla
-        total_m2 = sum(float(p.get('m2', 0)) for p in productions)
-        grouped[key]['totalProduction'] = total_m2
     
     return list(grouped.values())
 
