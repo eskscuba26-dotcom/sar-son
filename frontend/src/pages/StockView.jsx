@@ -5,7 +5,7 @@ import { Download, Package } from 'lucide-react';
 import { api } from '@/services/api';
 import * as XLSX from 'xlsx';
 
-export const Stock = () => {
+export const StockView = () => {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
