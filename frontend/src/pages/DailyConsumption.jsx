@@ -99,6 +99,19 @@ export const DailyConsumption = () => {
     XLSX.writeFile(wb, `gunluk-tuketim-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleDelete = async (id) => {
+    if (!canDelete()) return;
+    if (window.confirm('Bu tüketim kaydını silmek istediğinizden emin misiniz?')) {
+      try {
+        await axios.delete(`${API}/daily-consumption/${id}`);
+        toast({ title: 'Başarılı', description: 'Kayıt silindi' });
+        fetchConsumptions();
+      } catch (error) {
+        toast({ title: 'Hata', description: 'Silme başarısız', variant: 'destructive' });
+      }
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="daily-consumption-page">
       <div>
