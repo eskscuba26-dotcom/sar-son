@@ -16,7 +16,6 @@ export const Users = () => {
     username: '',
     password: '',
     name: '',
-    email: '',
     role: 'viewer'
   });
   const [passwordChangeData, setPasswordChangeData] = useState({
