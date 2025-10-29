@@ -51,11 +51,22 @@ export const Production = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await productionApi.create(formData);
-      toast({
-        title: 'Başarılı',
-        description: 'Üretim kaydı eklendi',
-      });
+      if (editingId) {
+        // Update existing record
+        await productionApi.update(editingId, formData);
+        toast({
+          title: 'Başarılı',
+          description: 'Üretim kaydı güncellendi',
+        });
+        setEditingId(null);
+      } else {
+        // Create new record
+        await productionApi.create(formData);
+        toast({
+          title: 'Başarılı',
+          description: 'Üretim kaydı eklendi',
+        });
+      }
       fetchProductions();
       // Reset form
       setFormData({
@@ -73,10 +84,43 @@ export const Production = () => {
     } catch (error) {
       toast({
         title: 'Hata',
-        description: 'Üretim kaydı eklenirken hata oluştu',
+        description: editingId ? 'Güncelleme başarısız' : 'Üretim kaydı eklenirken hata oluştu',
         variant: 'destructive',
       });
     }
+  };
+
+  const handleEdit = (production) => {
+    setEditingId(production.id);
+    setFormData({
+      date: production.date,
+      machine: production.machine,
+      thickness: production.thickness,
+      width: production.width,
+      length: production.length,
+      m2: production.m2,
+      quantity: production.quantity,
+      masuraType: production.masuraType,
+      color: production.color,
+      colorCategory: production.colorCategory,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({
+      date: new Date().toISOString().split('T')[0],
+      machine: '',
+      thickness: '',
+      width: '',
+      length: '',
+      m2: 0,
+      quantity: '',
+      masuraType: '',
+      color: '',
+      colorCategory: '',
+    });
   };
 
   const handleDelete = async (id) => {
