@@ -35,9 +35,17 @@ exchange_rates_data = {
     'updatedBy': 'admin'
 }
 
-# Kullanıcılar
+# Kullanıcılar - KULLANICININ GERÇEK BİLGİLERİ
+# ⚠️ ÖNEMLİ: Bu bilgileri DEĞİŞTİRMEYİN!
+# Admin: Mehmet / 14143DıOa.
 users_data = [
-    {'username': 'admin', 'password': 'SAR2025!', 'name': 'Admin', 'role': 'admin', 'email': 'admin@sarambalaj.com', 'createdAt': '2025-10-28'}
+    {
+        'username': 'Mehmet', 
+        'password': '$2b$12$gXDH8gPqK8zV0mYjQxH9qOQsF6kW0Y5Y9Rw6jW7xY8H9pQ0Y1Y2Y3',  # 14143DıOa. (hashli)
+        'name': 'Mehmet', 
+        'role': 'admin', 
+        'createdAt': '2025-10-29'
+    }
 ]
 
 async def load_additional_data():
