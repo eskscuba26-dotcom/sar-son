@@ -176,7 +176,7 @@ async def create_production(production: ProductionCreate, _: bool = Depends(chec
     return prod_obj
 
 @api_router.put("/production/{prod_id}")
-async def update_production(prod_id: str, production: ProductionCreate):
+async def update_production(prod_id: str, production: ProductionCreate, _: bool = Depends(check_admin_role)):
     result = await db.productions.update_one(
         {"id": prod_id},
         {"$set": production.model_dump()}
