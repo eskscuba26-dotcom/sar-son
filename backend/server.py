@@ -38,6 +38,12 @@ class UserResponse(BaseModel):
     username: str
     role: str = "admin"
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    name: str
+    role: str = "viewer"
+
 # Production Models
 class ProductionCreate(BaseModel):
     date: str
