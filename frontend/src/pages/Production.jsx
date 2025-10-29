@@ -153,7 +153,7 @@ export const Production = () => {
     <div className="space-y-6" data-testid="production-page">
       <div>
         <h1 className="text-3xl font-bold text-white">Üretim Girişi</h1>
-        <p className="text-slate-400 mt-1">Yeni üretim kaydı oluşturun</p>
+        <p className="text-slate-400 mt-1">{editingId ? 'Üretim kaydını düzenleyin' : 'Yeni üretim kaydı oluşturun'}</p>
       </div>
 
       {/* Form */}
