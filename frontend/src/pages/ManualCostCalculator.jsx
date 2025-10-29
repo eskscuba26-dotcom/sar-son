@@ -8,21 +8,20 @@ import { formatCurrency } from '@/utils/formatCurrency';
 
 export const ManualCostCalculator = () => {
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
-    machine: '',
     thickness: '',
     width: '',
     length: '',
     quantity: '',
-    petkim: '',
-    estol: '',
-    talk: '',
-    gaz: '',
-    masuraType: '',
+    petkimPerM2: '', // gram/m²
     masuraPrice: ''
   });
 
   const [results, setResults] = useState({
+    totalM2: 0,
+    totalPetkim: 0,
+    totalEstol: 0,
+    totalTalk: 0,
+    totalGaz: 0,
     petkimCost: 0,
     estolCost: 0,
     talkCost: 0,
@@ -30,16 +29,22 @@ export const ManualCostCalculator = () => {
     masuraCost: 0,
     totalCost: 0,
     m2Cost: 0,
-    unitCost: 0,
-    totalM2: 0
+    unitCost: 0
   });
 
-  // Birim fiyatlar (Hammadde Yönetimi'nden gelecek - şimdilik sabit)
+  // Birim fiyatlar (TL/kg)
   const PRICES = {
-    petkim: 39.18, // TL/kg
-    estol: 72.68,  // TL/kg
-    talk: 74.18,   // TL/kg
-    gaz: 36.06     // TL/kg
+    petkim: 39.18,
+    estol: 72.68,
+    talk: 74.18,
+    gaz: 36.06
+  };
+
+  // Oranlar
+  const RATIOS = {
+    estol: 0.03,   // %3
+    talk: 0.015,   // %1.5
+    gaz: 0.04      // %4 (üretim verilerinden ortalama)
   };
 
   useEffect(() => {
@@ -47,13 +52,25 @@ export const ManualCostCalculator = () => {
   }, [formData]);
 
   const calculateCosts = () => {
-    const m2 = (parseFloat(formData.width) * parseFloat(formData.length)) / 10000 || 0;
-    const totalM2 = m2 * (parseFloat(formData.quantity) || 0);
+    // m² hesapla
+    const singleM2 = (parseFloat(formData.width) * parseFloat(formData.length)) / 10000 || 0;
+    const totalM2 = singleM2 * (parseFloat(formData.quantity) || 0);
     
-    const petkimCost = parseFloat(formData.petkim) * PRICES.petkim || 0;
-    const estolCost = parseFloat(formData.estol) * PRICES.estol || 0;
-    const talkCost = parseFloat(formData.talk) * PRICES.talk || 0;
-    const gazCost = parseFloat(formData.gaz) * PRICES.gaz || 0;
+    // Petkim gram/m² → toplam kg
+    const petkimGramPerM2 = parseFloat(formData.petkimPerM2) || 0;
+    const totalPetkimGram = petkimGramPerM2 * totalM2;
+    const totalPetkimKg = totalPetkimGram / 1000;
+    
+    // Otomatik hesaplama
+    const totalEstolKg = totalPetkimKg * RATIOS.estol;
+    const totalTalkKg = totalPetkimKg * RATIOS.talk;
+    const totalGazKg = totalPetkimKg * RATIOS.gaz;
+    
+    // Maliyetler
+    const petkimCost = totalPetkimKg * PRICES.petkim;
+    const estolCost = totalEstolKg * PRICES.estol;
+    const talkCost = totalTalkKg * PRICES.talk;
+    const gazCost = totalGazKg * PRICES.gaz;
     const masuraCost = parseFloat(formData.quantity) * parseFloat(formData.masuraPrice) || 0;
     
     const totalCost = petkimCost + estolCost + talkCost + gazCost + masuraCost;
@@ -61,6 +78,11 @@ export const ManualCostCalculator = () => {
     const m2Cost = totalCost / totalM2 || 0;
 
     setResults({
+      totalM2,
+      totalPetkim: totalPetkimKg,
+      totalEstol: totalEstolKg,
+      totalTalk: totalTalkKg,
+      totalGaz: totalGazKg,
       petkimCost,
       estolCost,
       talkCost,
@@ -68,24 +90,17 @@ export const ManualCostCalculator = () => {
       masuraCost,
       totalCost,
       m2Cost,
-      unitCost,
-      totalM2
+      unitCost
     });
   };
 
   const handleClear = () => {
     setFormData({
-      date: new Date().toISOString().split('T')[0],
-      machine: '',
       thickness: '',
       width: '',
       length: '',
       quantity: '',
-      petkim: '',
-      estol: '',
-      talk: '',
-      gaz: '',
-      masuraType: '',
+      petkimPerM2: '',
       masuraPrice: ''
     });
   };
@@ -95,7 +110,7 @@ export const ManualCostCalculator = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">Manuel Maliyet Hesaplama</h1>
-          <p className="text-slate-400 mt-1">Hızlı maliyet hesaplaması yapın</p>
+          <p className="text-slate-400 mt-1">Hızlı maliyet hesaplaması</p>
         </div>
         <Button onClick={handleClear} variant="outline" className="border-slate-700">
           <Trash2 className="h-4 w-4 mr-2" />
@@ -107,30 +122,9 @@ export const ManualCostCalculator = () => {
         {/* Sol: Form */}
         <Card className="bg-slate-900/50 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-white">Üretim Bilgileri</CardTitle>
+            <CardTitle className="text-white">Girişler</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-slate-200">Tarih</Label>
-                <Input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="bg-slate-800/50 border-slate-700 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-slate-200">Makine</Label>
-                <Input
-                  value={formData.machine}
-                  onChange={(e) => setFormData({ ...formData, machine: e.target.value })}
-                  placeholder="Makine 1"
-                  className="bg-slate-800/50 border-slate-700 text-white"
-                />
-              </div>
-            </div>
-
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-200">Kalınlık (mm)</Label>
@@ -168,84 +162,44 @@ export const ManualCostCalculator = () => {
                 type="number"
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white"
+                className="bg-slate-800/50 border-slate-700 text-white text-lg"
               />
             </div>
 
             <div className="border-t border-slate-700 pt-4">
-              <h3 className="text-white font-semibold mb-3">Hammadde Tüketimi</h3>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Petkim (kg)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.petkim}
-                      onChange={(e) => setFormData({ ...formData, petkim: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700 text-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Estol (kg)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.estol}
-                      onChange={(e) => setFormData({ ...formData, estol: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700 text-white"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Talk (kg)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.talk}
-                      onChange={(e) => setFormData({ ...formData, talk: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700 text-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Gaz (kg)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.gaz}
-                      onChange={(e) => setFormData({ ...formData, gaz: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700 text-white"
-                    />
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-slate-200 text-lg">Petkim Miktarı (gram/m²)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.petkimPerM2}
+                  onChange={(e) => setFormData({ ...formData, petkimPerM2: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white text-2xl font-bold"
+                  placeholder="0.00"
+                />
+                <p className="text-xs text-slate-500">Metrekare başına Petkim gram miktarı</p>
               </div>
             </div>
 
             <div className="border-t border-slate-700 pt-4">
-              <h3 className="text-white font-semibold mb-3">Masura</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-slate-200">Masura Tipi</Label>
-                  <Input
-                    value={formData.masuraType}
-                    onChange={(e) => setFormData({ ...formData, masuraType: e.target.value })}
-                    placeholder="Masura 100"
-                    className="bg-slate-800/50 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-200">Birim Fiyat (TL)</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formData.masuraPrice}
-                    onChange={(e) => setFormData({ ...formData, masuraPrice: e.target.value })}
-                    placeholder="13.00"
-                    className="bg-slate-800/50 border-slate-700 text-white"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-slate-200">Masura Birim Fiyatı (TL)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.masuraPrice}
+                  onChange={(e) => setFormData({ ...formData, masuraPrice: e.target.value })}
+                  placeholder="13.00"
+                  className="bg-slate-800/50 border-slate-700 text-white"
+                />
               </div>
+            </div>
+
+            <div className="bg-blue-900/20 border border-blue-800 rounded p-3 text-xs text-blue-300">
+              <p className="font-semibold mb-1">Otomatik Hesaplama:</p>
+              <p>• Estol = Petkim × %3</p>
+              <p>• Talk = Petkim × %1.5</p>
+              <p>• Gaz = Petkim × %4</p>
             </div>
           </CardContent>
         </Card>
@@ -255,37 +209,59 @@ export const ManualCostCalculator = () => {
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Calculator className="h-5 w-5" />
-              Hesaplama Sonuçları
+              Sonuçlar
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded">
                 <span className="text-slate-300">Toplam m²:</span>
-                <span className="text-blue-400 font-semibold">{formatCurrency(results.totalM2)}</span>
+                <span className="text-blue-400 font-bold text-lg">{formatCurrency(results.totalM2)}</span>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-700 pt-4">
+              <h3 className="text-white font-semibold mb-3">Hammadde Miktarları</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Petkim:</span>
+                  <span className="text-slate-300 font-semibold">{formatCurrency(results.totalPetkim)} kg</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Estol (otomatik):</span>
+                  <span className="text-slate-300">{formatCurrency(results.totalEstol)} kg</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Talk (otomatik):</span>
+                  <span className="text-slate-300">{formatCurrency(results.totalTalk)} kg</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Gaz (otomatik):</span>
+                  <span className="text-slate-300">{formatCurrency(results.totalGaz)} kg</span>
+                </div>
               </div>
             </div>
 
             <div className="border-t border-slate-700 pt-4">
               <h3 className="text-white font-semibold mb-3">Maliyet Detayları</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
                   <span className="text-slate-400">Petkim:</span>
                   <span className="text-slate-300">{formatCurrency(results.petkimCost)} TL</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-slate-400">Estol:</span>
                   <span className="text-slate-300">{formatCurrency(results.estolCost)} TL</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-slate-400">Talk:</span>
                   <span className="text-slate-300">{formatCurrency(results.talkCost)} TL</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-slate-400">Gaz:</span>
                   <span className="text-slate-300">{formatCurrency(results.gazCost)} TL</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-slate-400">Masura:</span>
                   <span className="text-slate-300">{formatCurrency(results.masuraCost)} TL</span>
                 </div>
@@ -294,8 +270,8 @@ export const ManualCostCalculator = () => {
 
             <div className="border-t border-slate-700 pt-4 space-y-3">
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-emerald-600/20 to-emerald-800/20 rounded-lg border border-emerald-700">
-                <span className="text-emerald-300 font-semibold">TOPLAM MALİYET:</span>
-                <span className="text-emerald-400 font-bold text-xl">{formatCurrency(results.totalCost)} TL</span>
+                <span className="text-emerald-300 font-semibold">TOPLAM:</span>
+                <span className="text-emerald-400 font-bold text-2xl">{formatCurrency(results.totalCost)} TL</span>
               </div>
               
               <div className="grid grid-cols-2 gap-3">
@@ -307,13 +283,6 @@ export const ManualCostCalculator = () => {
                   <div className="text-orange-300 text-xs mb-1">m² Maliyet</div>
                   <div className="text-orange-400 font-bold">{formatCurrency(results.m2Cost)} TL</div>
                 </div>
-              </div>
-            </div>
-
-            <div className="border-t border-slate-700 pt-4">
-              <div className="text-xs text-slate-500 space-y-1">
-                <p>* Birim Fiyatlar: Petkim {PRICES.petkim} TL/kg, Estol {PRICES.estol} TL/kg</p>
-                <p>* Talk {PRICES.talk} TL/kg, Gaz {PRICES.gaz} TL/kg</p>
               </div>
             </div>
           </CardContent>
