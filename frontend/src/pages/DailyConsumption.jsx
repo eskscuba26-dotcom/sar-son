@@ -234,6 +234,7 @@ export const DailyConsumption = () => {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Table */}
       <Card className="bg-slate-900/50 border-slate-800">
