@@ -378,7 +378,7 @@ async def create_daily_consumption(data: dict, _: bool = Depends(check_admin_rol
 
 @api_router.get("/cost-analysis")
 async def get_cost_analysis():
-    """Üretim satırı bazında gerçek maliyet analizi"""
+    """Üretim satırı bazında gerçek maliyet analizi - Makine bazında doğru hesaplama"""
     
     # 1. Tüm üretim kayıtlarını al
     productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
@@ -425,25 +425,48 @@ async def get_cost_analysis():
             masura_prices[mat.get('material', '')] = price_tl
     
     # 4. Tarihe ve makineye göre günlük tüketimi grupla
+    # Petkim, Estol, Talk → Makine bazında
+    # Gaz → O günün toplam gazını tüm makinelere dağıtacağız
     consumption_by_date_machine = {}
+    total_gaz_by_date = {}  # Tarihe göre toplam gaz
+    
     for cons in consumptions:
-        key = f"{cons.get('date')}_{cons.get('machine')}"
+        date = cons.get('date')
+        machine = cons.get('machine')
+        key = f"{date}_{machine}"
+        
         if key not in consumption_by_date_machine:
             consumption_by_date_machine[key] = {
                 'petkim': 0, 'estol': 0, 'talk': 0, 'gaz': 0
             }
+        
+        # Petkim, Estol, Talk makine bazında topla
         consumption_by_date_machine[key]['petkim'] += float(cons.get('petkim', 0))
         consumption_by_date_machine[key]['estol'] += float(cons.get('estol', 0))
         consumption_by_date_machine[key]['talk'] += float(cons.get('talk', 0))
-        consumption_by_date_machine[key]['gaz'] += float(cons.get('gaz', 0))
+        
+        # Gaz'ı tarihe göre topla (tüm makineler için toplam)
+        if date not in total_gaz_by_date:
+            total_gaz_by_date[date] = 0
+        total_gaz_by_date[date] += float(cons.get('gaz', 0))
     
-    # 5. Tarihe ve makineye göre toplam m² hesapla
+    # 5. Tarihe ve makineye göre toplam m² hesapla (gaz dağıtımı için gerekli)
     total_m2_by_date_machine = {}
+    total_m2_by_date = {}  # O günün tüm makinelerindeki toplam m²
+    
     for prod in productions:
-        key = f"{prod.get('date')}_{prod.get('machine')}"
+        date = prod.get('date')
+        machine = prod.get('machine')
+        m2 = float(prod.get('m2', 0))
+        
+        key = f"{date}_{machine}"
         if key not in total_m2_by_date_machine:
             total_m2_by_date_machine[key] = 0
-        total_m2_by_date_machine[key] += float(prod.get('m2', 0))
+        total_m2_by_date_machine[key] += m2
+        
+        if date not in total_m2_by_date:
+            total_m2_by_date[date] = 0
+        total_m2_by_date[date] += m2
     
     # 6. Her üretim satırı için maliyet hesapla
     cost_analysis = []
@@ -456,20 +479,30 @@ async def get_cost_analysis():
         key = f"{date}_{machine}"
         
         # Bu tarih-makine için günlük tüketim
-        daily_cons = consumption_by_date_machine.get(key, {})
-        total_m2_day = total_m2_by_date_machine.get(key, 1)
+        daily_cons = consumption_by_date_machine.get(key, {'petkim': 0, 'estol': 0, 'talk': 0, 'gaz': 0})
+        total_m2_machine = total_m2_by_date_machine.get(key, 1)
         
-        # Bu üretimin payı (m²'ye göre)
-        if total_m2_day > 0:
-            ratio = m2 / total_m2_day
+        # Bu üretimin payı (aynı makine içindeki ürünler arasında m²'ye göre)
+        if total_m2_machine > 0:
+            ratio = m2 / total_m2_machine
         else:
             ratio = 0
         
-        # Bu üretim satırının hammadde tüketimi
+        # Petkim, Estol, Talk → Makine bazında dağıt
         prod_petkim = daily_cons.get('petkim', 0) * ratio
         prod_estol = daily_cons.get('estol', 0) * ratio
         prod_talk = daily_cons.get('talk', 0) * ratio
-        prod_gaz = daily_cons.get('gaz', 0) * ratio
+        
+        # Gaz → O günün TÜM makineleri arasında m²'ye göre dağıt
+        total_gaz_day = total_gaz_by_date.get(date, 0)
+        total_m2_day = total_m2_by_date.get(date, 1)
+        
+        if total_m2_day > 0:
+            gaz_ratio = m2 / total_m2_day
+        else:
+            gaz_ratio = 0
+        
+        prod_gaz = total_gaz_day * gaz_ratio
         
         # Hammadde maliyeti
         material_cost = (
