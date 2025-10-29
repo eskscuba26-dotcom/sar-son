@@ -1,5 +1,6 @@
 """
 Excel dosyasından tüm verileri okuyup MongoDB'ye yükle
+SAR-2025-Veriler.xlsx dosyasındaki tüm sheet'leri ve verileri içe aktar
 """
 import pandas as pd
 import asyncio
@@ -21,59 +22,38 @@ db = client[os.environ['DB_NAME']]
 EXCEL_FILE = "/app/SAR-2025-Veriler.xlsx"
 
 async def import_production_data():
-    """Üretim verilerini import et (Sheet1)"""
+    """Üretim verilerini import et (Sheet: Üretim Kayıtları)"""
     print("📊 Üretim verileri yükleniyor...")
     
     try:
-        # Excel'den oku
-        df = pd.read_excel(EXCEL_FILE, sheet_name=0)
+        # Excel'den oku - Sheet adı: "Üretim Kayıtları"
+        df = pd.read_excel(EXCEL_FILE, sheet_name="Üretim Kayıtları")
         
-        print(f"Sheet columns: {df.columns.tolist()}")
-        print(f"First few rows:\n{df.head()}")
+        print(f"   Sütunlar: {df.columns.tolist()}")
+        print(f"   Toplam satır: {len(df)}")
         
-        # Temizle ve yükle
         productions = []
         for index, row in df.iterrows():
             try:
                 # Boş satırları atla
-                if pd.isna(row.iloc[0]):
+                if pd.isna(row['Tarih']):
                     continue
                 
-                # Tarih sütunu
-                date_val = row.iloc[0]
-                if isinstance(date_val, (int, float)):
-                    continue  # Toplam satırları atla
-                    
                 # Tarih formatını düzenle
-                if isinstance(date_val, pd.Timestamp):
-                    date_str = date_val.strftime('%Y-%m-%d')
+                if isinstance(row['Tarih'], pd.Timestamp):
+                    date_str = row['Tarih'].strftime('%Y-%m-%d')
                 else:
-                    date_str = str(date_val)
+                    date_str = str(row['Tarih'])
                 
-                # Makine ve kalınlık bilgisi
-                machine_thickness = str(row.iloc[1]) if not pd.isna(row.iloc[1]) else "Makine 1"
-                
-                # Makine ve kalınlığı ayır
-                if "Makine" in machine_thickness:
-                    machine = machine_thickness.split()[0] + " " + machine_thickness.split()[1]
-                    # Kalınlık bir sonraki sütunda
-                    thickness_col = 2
-                else:
-                    machine = "Makine 1"
-                    thickness_col = 1
-                
-                thickness = str(row.iloc[thickness_col]) if not pd.isna(row.iloc[thickness_col]) else "1 mm"
-                if "mm" not in thickness:
-                    thickness = f"{thickness} mm"
-                
-                width = str(int(row.iloc[thickness_col + 1])) if not pd.isna(row.iloc[thickness_col + 1]) else "100"
-                length = str(int(row.iloc[thickness_col + 2])) if not pd.isna(row.iloc[thickness_col + 2]) else "300"
-                m2 = float(row.iloc[thickness_col + 3]) if not pd.isna(row.iloc[thickness_col + 3]) else 0.0
-                quantity = int(row.iloc[thickness_col + 4]) if not pd.isna(row.iloc[thickness_col + 4]) else 0
-                
-                masura_type = str(row.iloc[thickness_col + 5]) if not pd.isna(row.iloc[thickness_col + 5]) else "Masura 100"
-                color = str(row.iloc[thickness_col + 6]) if not pd.isna(row.iloc[thickness_col + 6]) else "Doğal"
-                color_category = str(row.iloc[thickness_col + 7]) if not pd.isna(row.iloc[thickness_col + 7]) else "Doğal"
+                machine = str(row['Makine']) if not pd.isna(row['Makine']) else "Makine 1"
+                thickness = str(row['Kalınlık']) if not pd.isna(row['Kalınlık']) else "1 mm"
+                width = str(int(row['En'])) if not pd.isna(row['En']) else "100"
+                length = str(int(row['Uzunluk'])) if not pd.isna(row['Uzunluk']) else "300"
+                m2 = float(row['M²']) if not pd.isna(row['M²']) else 0.0
+                quantity = int(row['Adet']) if not pd.isna(row['Adet']) else 0
+                masura_type = str(row['Masura Tipi']) if not pd.isna(row['Masura Tipi']) else "Masura 100"
+                color = str(row['Renk']) if not pd.isna(row['Renk']) else "Doğal"
+                color_category = str(row['Renk Kategorisi']) if not pd.isna(row['Renk Kategorisi']) else "Doğal"
                 
                 prod = {
                     "id": str(uuid.uuid4()),
@@ -93,7 +73,7 @@ async def import_production_data():
                 productions.append(prod)
                 
             except Exception as e:
-                print(f"Satır {index} atlandı: {e}")
+                print(f"   ⚠️ Satır {index} atlandı: {e}")
                 continue
         
         if productions:
@@ -101,43 +81,42 @@ async def import_production_data():
             await db.productions.delete_many({})
             # Yeni verileri ekle
             await db.productions.insert_many(productions)
-            print(f"✅ {len(productions)} üretim kaydı yüklendi")
+            print(f"   ✅ {len(productions)} üretim kaydı yüklendi")
         else:
-            print("⚠️ Üretim verisi bulunamadı")
+            print("   ⚠️ Üretim verisi bulunamadı")
             
     except Exception as e:
-        print(f"❌ Üretim verileri yüklenemedi: {e}")
+        print(f"   ❌ Üretim verileri yüklenemedi: {e}")
+        import traceback
+        traceback.print_exc()
 
 async def import_cut_products():
-    """Kesilmiş ürün verilerini import et (Sheet2)"""
+    """Kesilmiş ürün verilerini import et (Sheet: Kesilmiş Ürünler)"""
     print("\n✂️ Kesilmiş ürün verileri yükleniyor...")
     
     try:
-        df = pd.read_excel(EXCEL_FILE, sheet_name=1)
+        df = pd.read_excel(EXCEL_FILE, sheet_name="Kesilmiş Ürünler")
         
-        print(f"Sheet columns: {df.columns.tolist()}")
+        print(f"   Sütunlar: {df.columns.tolist()}")
+        print(f"   Toplam satır: {len(df)}")
         
         cut_products = []
         for index, row in df.iterrows():
             try:
                 # Boş satırları atla
-                if pd.isna(row.iloc[0]):
-                    continue
-                
-                date_val = row.iloc[0]
-                if isinstance(date_val, (int, float)):
+                if pd.isna(row['Tarih']):
                     continue
                     
-                if isinstance(date_val, pd.Timestamp):
-                    date_str = date_val.strftime('%Y-%m-%d')
+                if isinstance(row['Tarih'], pd.Timestamp):
+                    date_str = row['Tarih'].strftime('%Y-%m-%d')
                 else:
-                    date_str = str(date_val)
+                    date_str = str(row['Tarih'])
                 
-                original_material = str(row.iloc[1]) if not pd.isna(row.iloc[1]) else ""
-                cut_size = str(row.iloc[2]) if not pd.isna(row.iloc[2]) else ""
-                quantity = int(row.iloc[3]) if not pd.isna(row.iloc[3]) else 0
-                used_material = str(row.iloc[4]) if not pd.isna(row.iloc[4]) else ""
-                color = str(row.iloc[5]) if not pd.isna(row.iloc[5]) else "Doğal"
+                original_material = str(row['Malzeme']) if not pd.isna(row['Malzeme']) else ""
+                cut_size = str(row['Kesim Boyutu']) if not pd.isna(row['Kesim Boyutu']) else ""
+                quantity = int(row['Adet']) if not pd.isna(row['Adet']) else 0
+                used_material = str(row['Kullanılan Malzeme']) if not pd.isna(row['Kullanılan Malzeme']) else ""
+                color = str(row['Renk']) if not pd.isna(row['Renk']) else "Doğal"
                 
                 cut_prod = {
                     "id": str(uuid.uuid4()),
@@ -153,51 +132,50 @@ async def import_cut_products():
                 cut_products.append(cut_prod)
                 
             except Exception as e:
-                print(f"Satır {index} atlandı: {e}")
+                print(f"   ⚠️ Satır {index} atlandı: {e}")
                 continue
         
         if cut_products:
             await db.cut_products.delete_many({})
             await db.cut_products.insert_many(cut_products)
-            print(f"✅ {len(cut_products)} kesilmiş ürün kaydı yüklendi")
+            print(f"   ✅ {len(cut_products)} kesilmiş ürün kaydı yüklendi")
         else:
-            print("⚠️ Kesilmiş ürün verisi bulunamadı")
+            print("   ⚠️ Kesilmiş ürün verisi bulunamadı")
             
     except Exception as e:
-        print(f"❌ Kesilmiş ürün verileri yüklenemedi: {e}")
+        print(f"   ❌ Kesilmiş ürün verileri yüklenemedi: {e}")
+        import traceback
+        traceback.print_exc()
 
 async def import_shipments():
-    """Sevkiyat verilerini import et (Sheet3)"""
+    """Sevkiyat verilerini import et (Sheet: Sevkiyatlar)"""
     print("\n📦 Sevkiyat verileri yükleniyor...")
     
     try:
-        df = pd.read_excel(EXCEL_FILE, sheet_name=2)
+        df = pd.read_excel(EXCEL_FILE, sheet_name="Sevkiyatlar")
         
-        print(f"Sheet columns: {df.columns.tolist()}")
+        print(f"   Sütunlar: {df.columns.tolist()}")
+        print(f"   Toplam satır: {len(df)}")
         
         shipments = []
         for index, row in df.iterrows():
             try:
                 # Boş satırları atla
-                if pd.isna(row.iloc[0]):
-                    continue
-                
-                date_val = row.iloc[0]
-                if isinstance(date_val, (int, float)):
+                if pd.isna(row['Tarih']):
                     continue
                     
-                if isinstance(date_val, pd.Timestamp):
-                    date_str = date_val.strftime('%Y-%m-%d')
+                if isinstance(row['Tarih'], pd.Timestamp):
+                    date_str = row['Tarih'].strftime('%Y-%m-%d')
                 else:
-                    date_str = str(date_val)
+                    date_str = str(row['Tarih'])
                 
-                customer = str(row.iloc[1]) if not pd.isna(row.iloc[1]) else ""
-                ship_type = str(row.iloc[2]) if not pd.isna(row.iloc[2]) else "Normal"
-                size = str(row.iloc[3]) if not pd.isna(row.iloc[3]) else ""
-                m2 = float(row.iloc[4]) if not pd.isna(row.iloc[4]) else 0.0
-                quantity = int(row.iloc[5]) if not pd.isna(row.iloc[5]) else 0
-                color = str(row.iloc[6]) if not pd.isna(row.iloc[6]) else "Doğal"
-                waybill_no = str(row.iloc[7]) if not pd.isna(row.iloc[7]) else ""
+                customer = str(row['Müşteri']) if not pd.isna(row['Müşteri']) else ""
+                ship_type = str(row['Tip']) if not pd.isna(row['Tip']) else "Normal"
+                size = str(row['Boyut']) if not pd.isna(row['Boyut']) else ""
+                m2 = float(row['M²']) if not pd.isna(row['M²']) else 0.0
+                quantity = int(row['Adet']) if not pd.isna(row['Adet']) else 0
+                color = str(row['Renk']) if not pd.isna(row['Renk']) else "Doğal"
+                waybill_no = str(row['İrsaliye No']) if not pd.isna(row['İrsaliye No']) else ""
                 
                 shipment = {
                     "id": str(uuid.uuid4()),
@@ -214,18 +192,20 @@ async def import_shipments():
                 shipments.append(shipment)
                 
             except Exception as e:
-                print(f"Satır {index} atlandı: {e}")
+                print(f"   ⚠️ Satır {index} atlandı: {e}")
                 continue
         
         if shipments:
             await db.shipments.delete_many({})
             await db.shipments.insert_many(shipments)
-            print(f"✅ {len(shipments)} sevkiyat kaydı yüklendi")
+            print(f"   ✅ {len(shipments)} sevkiyat kaydı yüklendi")
         else:
-            print("⚠️ Sevkiyat verisi bulunamadı")
+            print("   ⚠️ Sevkiyat verisi bulunamadı")
             
     except Exception as e:
-        print(f"❌ Sevkiyat verileri yüklenemedi: {e}")
+        print(f"   ❌ Sevkiyat verileri yüklenemedi: {e}")
+        import traceback
+        traceback.print_exc()
 
 async def main():
     print("=" * 60)
