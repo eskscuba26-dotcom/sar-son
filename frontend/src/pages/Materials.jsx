@@ -25,7 +25,9 @@ export const Materials = () => {
     exchangeRate: 1,
     supplier: ''
   });
+  const [editingId, setEditingId] = useState(null);
   const { toast } = useToast();
+  const { canAdd, canEdit, canDelete } = useAuth();
 
   useEffect(() => {
     fetchMaterials();
