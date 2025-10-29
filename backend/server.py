@@ -167,7 +167,7 @@ async def get_productions():
     return productions
 
 @api_router.post("/production", response_model=Production)
-async def create_production(production: ProductionCreate):
+async def create_production(production: ProductionCreate, _: bool = Depends(check_admin_role)):
     prod_dict = production.model_dump()
     prod_obj = Production(**prod_dict)
     
