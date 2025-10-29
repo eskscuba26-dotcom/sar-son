@@ -289,12 +289,13 @@ export const Materials = () => {
                   <TableHead className="text-slate-300">Birim Fiyat</TableHead>
                   <TableHead className="text-slate-300">Toplam Tutar</TableHead>
                   <TableHead className="text-slate-300">Tedarikçi</TableHead>
+                  <TableHead className="text-slate-300 text-right">İşlemler</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {materials.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={7} className="text-center text-slate-400 py-8">
                       Henüz hammadde kaydı bulunmuyor
                     </TableCell>
                   </TableRow>
@@ -307,6 +308,28 @@ export const Materials = () => {
                       <TableCell className="text-blue-400">{mat.unitPrice} {mat.currency}</TableCell>
                       <TableCell className="text-emerald-400 font-semibold">{mat.totalPrice} TL</TableCell>
                       <TableCell className="text-slate-300">{mat.supplier}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                        {canEdit() && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(mat)}
+                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {canDelete() && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(mat.id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
