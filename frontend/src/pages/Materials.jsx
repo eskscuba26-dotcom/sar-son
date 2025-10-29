@@ -244,8 +244,16 @@ export const Materials = () => {
 
       {/* Table */}
       <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white">Hammadde Kayıtları</CardTitle>
+          <Button
+            onClick={exportToExcel}
+            variant="outline"
+            className="border-emerald-600 text-emerald-400 hover:bg-emerald-600/10"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Excel'e Aktar
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
