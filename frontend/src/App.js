@@ -131,10 +131,6 @@ const LoginPage = () => {
               Giriş Yap
             </Button>
           </form>
-          <div className="mt-4 text-center text-xs text-slate-500">
-            <p>Varsayılan Admin:</p>
-            <p className="font-mono">admin / SAR2025!</p>
-          </div>
         </CardContent>
       </Card>
     </div>
