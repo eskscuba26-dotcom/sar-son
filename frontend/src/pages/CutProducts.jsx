@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { cutProductApi, productionApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Trash2, Download, Scissors } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 export const CutProducts = () => {
   const [cutProducts, setCutProducts] = useState([]);
