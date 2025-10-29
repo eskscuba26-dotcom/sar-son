@@ -131,7 +131,7 @@ async def login(request: LoginRequest):
     )
 
 @api_router.post("/users", response_model=UserResponse)
-async def create_user(user: UserCreate):
+async def create_user(user: UserCreate, _: bool = Depends(check_admin_role)):
     # Kullanıcı zaten var mı kontrol et
     existing = await db.users.find_one({"username": user.username})
     if existing:
