@@ -123,6 +123,35 @@ async def login(request: LoginRequest):
         role=user.get('role', 'viewer')
     )
 
+@api_router.post("/users", response_model=UserResponse)
+async def create_user(user: UserCreate):
+    # Kullanıcı zaten var mı kontrol et
+    existing = await db.users.find_one({"username": user.username})
+    if existing:
+        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor")
+    
+    # Şifreyi hashle
+    import bcrypt
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    # Yeni kullanıcı oluştur
+    new_user = {
+        "id": str(uuid.uuid4()),
+        "username": user.username,
+        "password": hashed_password,
+        "name": user.name,
+        "role": user.role,
+        "createdAt": datetime.utcnow().isoformat()
+    }
+    
+    await db.users.insert_one(new_user)
+    
+    return UserResponse(
+        id=new_user['id'],
+        username=new_user['username'],
+        role=new_user['role']
+    )
+
 
 # ===== Production Routes =====
 @api_router.get("/production", response_model=List[Production])
