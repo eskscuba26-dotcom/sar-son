@@ -323,7 +323,7 @@ async def get_cut_products():
     return cut_products
 
 @api_router.post("/cut-products")
-async def create_cut_product(data: dict):
+async def create_cut_product(data: dict, _: bool = Depends(check_admin_role)):
     data['id'] = str(uuid.uuid4())
     await db.cut_products.insert_one(data)
     return {"message": "Created", "id": data['id']}
