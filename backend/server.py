@@ -186,7 +186,7 @@ async def update_production(prod_id: str, production: ProductionCreate, _: bool 
     return {"message": "Updated successfully"}
 
 @api_router.delete("/production/{prod_id}")
-async def delete_production(prod_id: str):
+async def delete_production(prod_id: str, _: bool = Depends(check_admin_role)):
     result = await db.productions.delete_one({"id": prod_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Production not found")
