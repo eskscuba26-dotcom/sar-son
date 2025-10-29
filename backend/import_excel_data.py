@@ -207,10 +207,11 @@ async def import_shipments():
         import traceback
         traceback.print_exc()
 
+
 async def main():
-    print("=" * 60)
-    print("📁 SAR-2025-Veriler.xlsx dosyası yükleniyor...")
-    print("=" * 60)
+    print("=" * 70)
+    print("📁 SAR-2025-Veriler.xlsx dosyası MongoDB'ye yükleniyor...")
+    print("=" * 70)
     
     # Tüm sheet'leri oku ve incele
     xls = pd.ExcelFile(EXCEL_FILE)
@@ -221,9 +222,9 @@ async def main():
     await import_cut_products()
     await import_shipments()
     
-    print("\n" + "=" * 60)
-    print("✅ Tüm veriler başarıyla yüklendi!")
-    print("=" * 60)
+    print("\n" + "=" * 70)
+    print("✅ TÜM VERİLER BAŞARIYLA YÜKLENDİ!")
+    print("=" * 70)
     
     # İstatistikleri göster
     prod_count = await db.productions.count_documents({})
@@ -231,9 +232,11 @@ async def main():
     ship_count = await db.shipments.count_documents({})
     
     print(f"\n📊 Yüklenen Veri Özeti:")
-    print(f"  - Üretim Kayıtları: {prod_count}")
-    print(f"  - Kesilmiş Ürünler: {cut_count}")
-    print(f"  - Sevkiyatlar: {ship_count}")
+    print(f"  • Üretim Kayıtları: {prod_count} kayıt")
+    print(f"  • Kesilmiş Ürünler: {cut_count} kayıt")
+    print(f"  • Sevkiyatlar: {ship_count} kayıt")
+    print(f"\n💾 Veritabanı: {os.environ['DB_NAME']}")
+    print("\n✨ Veriler uygulamada görüntülenmeye hazır!")
     
     client.close()
 
