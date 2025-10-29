@@ -371,7 +371,7 @@ async def get_daily_consumption():
     return consumptions
 
 @api_router.post("/daily-consumption")
-async def create_daily_consumption(data: dict):
+async def create_daily_consumption(data: dict, _: bool = Depends(check_admin_role)):
     data['id'] = str(uuid.uuid4())
     await db.daily_consumption.insert_one(data)
     return {"message": "Created", "id": data['id']}
