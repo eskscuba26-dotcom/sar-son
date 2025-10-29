@@ -82,6 +82,23 @@ export const DailyConsumption = () => {
   const [totalFire, setTotalFire] = useState(0);
   const [totalGaz, setTotalGaz] = useState(0);
 
+  const exportToExcel = () => {
+    const exportData = consumptions.map(item => ({
+      'Tarih': item.date,
+      'Makine': item.machine,
+      'PETKİM (kg)': item.petkim || 0,
+      'ESTOL (kg)': item.estol || 0,
+      'TALK (kg)': item.talk || 0,
+      'GAZ (kg)': item.gaz || 0,
+      'FİRE (kg)': item.fire || 0
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Günlük Tüketim');
+    XLSX.writeFile(wb, `gunluk-tuketim-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6" data-testid="daily-consumption-page">
       <div>
