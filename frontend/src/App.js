@@ -18,6 +18,7 @@ import { DailyConsumption } from "@/pages/DailyConsumption";
 import { CostAnalysis } from "@/pages/CostAnalysis";
 import { ExchangeRates } from "@/pages/ExchangeRates";
 import { Users } from "@/pages/Users";
+import { ManualCostCalculator } from "@/pages/ManualCostCalculator";
 import { ExcelViewer } from "@/pages/ExcelViewer";
 import { useToast } from "@/hooks/use-toast";
 import logoImage from "./logo.png";
