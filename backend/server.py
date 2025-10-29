@@ -544,7 +544,7 @@ async def delete_user(user_id: str, _: bool = Depends(check_admin_role)):
     return {"message": "User deleted"}
 
 @api_router.put("/users/change-password")
-async def change_password(data: dict):
+async def change_password(data: dict, _: bool = Depends(check_admin_role)):
     username = data.get("username")
     new_password = data.get("newPassword")
     
