@@ -37,11 +37,11 @@ exchange_rates_data = {
 
 # Kullanıcılar - KULLANICININ GERÇEK BİLGİLERİ
 # ⚠️ ÖNEMLİ: Bu bilgileri DEĞİŞTİRMEYİN!
-# Admin: Mehmet / 14143DıOa.
+# Admin: Mehmet / 141413DOa.
 users_data = [
     {
         'username': 'Mehmet', 
-        'password': '$2b$12$UoLXfMwdx6OYYObuMSb20.F5le3XqckvNrwxfgiKo76hxDWbe9bQK',  # 14143DıOa. (hashli)
+        'password': '$2b$12$bOplS.wkea4RiPysW6i4N.QGSkNY.QFVTpE0SqSjwnn6LyhhivXQi',  # 141413DOa. (hashli)
         'name': 'Mehmet', 
         'role': 'admin', 
         'createdAt': '2025-10-29'
