@@ -310,6 +310,7 @@ export const Shipment = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={exportToExcel}
               className="bg-emerald-600 hover:bg-emerald-700 border-0 text-white"
             >
               <Download className="h-4 w-4 mr-2" />
