@@ -530,6 +530,149 @@ export const ManualCostCalculator = () => {
           </Card>
         </>
       )}
+
+      {/* Ebatlama Bölümü */}
+      {results.baseCost > 0 && (
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-white">Ebatlama (Kesim Hesabı)</CardTitle>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={ebatlama.enabled}
+                  onChange={(e) => setEbatlama({...ebatlama, enabled: e.target.checked})}
+                  className="w-4 h-4"
+                />
+                <span className="text-slate-300 text-sm">Ebatlama Hesapla</span>
+              </label>
+            </div>
+          </CardHeader>
+          
+          {ebatlama.enabled && (
+            <CardContent className="space-y-6">
+              {/* Kesim Ölçüleri */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-800/30 rounded-lg">
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Kalınlık (mm)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={ebatlama.thickness || formData.thickness}
+                    onChange={(e) => setEbatlama({...ebatlama, thickness: e.target.value})}
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                    placeholder="Ana ile aynı"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-200">En (cm)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={ebatlama.width}
+                    onChange={(e) => setEbatlama({...ebatlama, width: e.target.value})}
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                    placeholder="Örn: 50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Boy (cm)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={ebatlama.length}
+                    onChange={(e) => setEbatlama({...ebatlama, length: e.target.value})}
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                    placeholder="Örn: 137.5"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Genel Masraflar (%)</Label>
+                  <Input
+                    type="number"
+                    value={ebatlama.overheadPercent}
+                    onChange={(e) => setEbatlama({...ebatlama, overheadPercent: e.target.value})}
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Kar Payı (%)</Label>
+                  <Input
+                    type="number"
+                    value={ebatlama.profitPercent}
+                    onChange={(e) => setEbatlama({...ebatlama, profitPercent: e.target.value})}
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Ebatlama Sonuçları */}
+              {ebatlamaResults.piecesFromMain > 0 && (
+                <div className="space-y-4">
+                  {/* Bilgi Kartları */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-700">
+                      <div className="text-blue-200 text-sm mb-1">Bir Parça</div>
+                      <div className="text-white font-bold text-xl">{ebatlamaResults.pieceM2.toFixed(4)} m²</div>
+                    </div>
+
+                    <div className="p-4 bg-emerald-900/30 rounded-lg border border-emerald-700">
+                      <div className="text-emerald-200 text-sm mb-1">Toplam Çıkan Parça</div>
+                      <div className="text-white font-bold text-xl">{ebatlamaResults.piecesFromMain} adet</div>
+                    </div>
+
+                    <div className="p-4 bg-purple-900/30 rounded-lg border border-purple-700">
+                      <div className="text-purple-200 text-sm mb-1">Ham Maliyet/Parça</div>
+                      <div className="text-white font-bold text-xl">{formatCurrency(ebatlamaResults.costPerPiece)}</div>
+                    </div>
+                  </div>
+
+                  {/* Maliyet Özeti */}
+                  <Card className="bg-gradient-to-r from-orange-900/50 to-orange-800/50 border-orange-700">
+                    <CardHeader>
+                      <CardTitle className="text-white">Kesilmiş Parça Maliyet Özeti</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-black/20 rounded-lg">
+                        <div className="text-orange-200 font-medium mb-2">+ %{ebatlama.overheadPercent} Genel Masraflar</div>
+                        <div className="text-white font-bold text-xl text-center">
+                          {formatCurrency(ebatlamaResults.withOverhead)}
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-orange-600/30 rounded-lg border-2 border-orange-500">
+                        <div className="text-white font-bold text-lg mb-2">
+                          BİR PARÇA FİNAL FİYAT (+ %{ebatlama.profitPercent} Kar)
+                        </div>
+                        <div className="text-orange-300 font-bold text-3xl text-center">
+                          {formatCurrency(ebatlamaResults.finalCostPerPiece)}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-orange-700/50">
+                        <div className="text-center p-3 bg-black/30 rounded">
+                          <div className="text-sm text-orange-200 mb-1">Toplam Parça</div>
+                          <div className="text-white font-bold">{ebatlamaResults.piecesFromMain} adet</div>
+                        </div>
+                        <div className="text-center p-3 bg-black/30 rounded">
+                          <div className="text-sm text-orange-200 mb-1">Toplam Satış Değeri</div>
+                          <div className="text-white font-bold">
+                            {formatCurrency(ebatlamaResults.finalCostPerPiece * ebatlamaResults.piecesFromMain)}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
+      )}
     </div>
   );
 };
