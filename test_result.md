@@ -288,6 +288,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Daily Consumption page loads successfully and displays 13 consumption records. Page is functional with proper data display."
+      - working: true
+        agent: "testing"
+        comment: "CORRECTED DATA VERIFICATION SUCCESS: Günlük Tüketim page now shows exactly 26 records as required (not 13 as previously). All consumption data properly displayed with material types (Petkim, Estol, Talk, Gaz, Fire). Verification requirement met exactly."
 
   - task: "Shipments Management"
     implemented: true
