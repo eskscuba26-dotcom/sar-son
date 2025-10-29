@@ -102,6 +102,24 @@ export const Shipment = () => {
     }
   };
 
+  const exportToExcel = () => {
+    const exportData = filteredShipments.map(item => ({
+      'Tarih': item.date,
+      'Müşteri': item.customer,
+      'Tip': item.type,
+      'Boyut': item.size,
+      'M²': item.m2,
+      'Adet': item.quantity,
+      'Renk': item.color,
+      'İrsaliye No': item.waybillNo
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sevkiyat');
+    XLSX.writeFile(wb, `sevkiyat-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6" data-testid="shipment-page">
       <div>
