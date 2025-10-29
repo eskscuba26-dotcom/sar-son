@@ -44,7 +44,7 @@ export const Users = () => {
     try {
       await userApi.create(formData);
       toast({ title: 'Başarılı', description: 'Kullanıcı eklendi' });
-      setFormData({ username: '', password: '', name: '', email: '', role: 'viewer' });
+      setFormData({ username: '', password: '', name: '', role: 'viewer' });
       fetchUsers();
     } catch (error) {
       toast({ title: 'Hata', description: 'Kullanıcı eklenemedi', variant: 'destructive' });
