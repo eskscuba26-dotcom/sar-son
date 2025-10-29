@@ -46,7 +46,7 @@ https://dosya-acici.preview.emergentagent.com
 
 **Giriş Bilgileri:**
 - Kullanıcı Adı: **Mehmet**
-- Şifre: **14143DıOa.**
+- Şifre: **141413DOa.**
 
 ## 📈 Yüklenen Veriler
 
