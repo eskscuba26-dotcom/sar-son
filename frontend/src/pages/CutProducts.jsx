@@ -95,6 +95,22 @@ export const CutProducts = () => {
     }
   };
 
+  const exportToExcel = () => {
+    const exportData = cutProducts.map(item => ({
+      'Tarih': item.date,
+      'Orijinal Malzeme': item.originalMaterial || item.material,
+      'Kesim Boyutu': item.cutSize,
+      'Adet': item.quantity,
+      'Kullanılan Malzeme': item.usedMaterial,
+      'Renk': item.color
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Kesilmiş Ürünler');
+    XLSX.writeFile(wb, `kesilmis-urunler-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6" data-testid="cut-products-page">
       <div>
