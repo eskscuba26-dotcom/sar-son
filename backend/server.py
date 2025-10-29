@@ -97,14 +97,25 @@ class StockItem(BaseModel):
 # ===== Auth Routes =====
 @api_router.post("/auth/login", response_model=UserResponse)
 async def login(request: LoginRequest):
-    # Simple auth for now - check against default admin
-    if request.username == "admin" and request.password == "SAR2025!":
-        return UserResponse(
-            id=str(uuid.uuid4()),
-            username=request.username,
-            role="admin"
-        )
-    raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre hatalı")
+    # Veritabanından kullanıcıyı bul
+    user = await db.users.find_one({"username": request.username})
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre hatalı")
+    
+    # Şifre kontrolü
+    import bcrypt
+    is_valid = bcrypt.checkpw(request.password.encode('utf-8'), user['password'].encode('utf-8'))
+    
+    if not is_valid:
+        raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre hatalı")
+    
+    return UserResponse(
+        id=user.get('id', str(uuid.uuid4())),
+        username=user['username'],
+        name=user.get('name', ''),
+        role=user.get('role', 'viewer')
+    )
 
 
 # ===== Production Routes =====
