@@ -44,6 +44,13 @@ class UserCreate(BaseModel):
     name: str
     role: str = "viewer"
 
+# Role checker dependency
+async def check_admin_role(current_user: str = Header(None, alias="X-User-Role")):
+    """İzleyici rolündeki kullanıcılar veri değiştiremez"""
+    if current_user == "viewer":
+        raise HTTPException(status_code=403, detail="Bu işlem için yetkiniz yok. Sadece admin kullanıcılar veri ekleyebilir/düzenleyebilir/silebilir.")
+    return True
+
 # Production Models
 class ProductionCreate(BaseModel):
     date: str
