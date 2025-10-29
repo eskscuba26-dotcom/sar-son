@@ -74,8 +74,17 @@ export const ManualCostCalculator = () => {
     const masuraCost = parseFloat(formData.quantity) * parseFloat(formData.masuraPrice) || 0;
     
     const totalCost = petkimCost + estolCost + talkCost + gazCost + masuraCost;
+    
+    // %15 Diğer Giderler ve %30 Kâr Payı
+    const otherExpenses = totalCost * 0.15;
+    const profit = totalCost * 0.30;
+    const finalPrice = totalCost + otherExpenses + profit;
+    
     const unitCost = totalCost / parseFloat(formData.quantity) || 0;
     const m2Cost = totalCost / totalM2 || 0;
+    
+    const finalUnitPrice = finalPrice / parseFloat(formData.quantity) || 0;
+    const finalM2Price = finalPrice / totalM2 || 0;
 
     setResults({
       totalM2,
@@ -90,7 +99,12 @@ export const ManualCostCalculator = () => {
       masuraCost,
       totalCost,
       m2Cost,
-      unitCost
+      unitCost,
+      otherExpenses,
+      profit,
+      finalPrice,
+      finalUnitPrice,
+      finalM2Price
     });
   };
 
