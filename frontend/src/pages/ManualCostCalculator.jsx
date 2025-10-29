@@ -23,6 +23,23 @@ export const ManualCostCalculator = () => {
     profitPercent: '30'
   });
 
+  const [ebatlama, setEbatlama] = useState({
+    enabled: false,
+    thickness: '',
+    width: '',
+    length: '',
+    overheadPercent: '15',
+    profitPercent: '30'
+  });
+
+  const [ebatlamaResults, setEbatlamaResults] = useState({
+    pieceM2: 0,
+    piecesFromMain: 0,
+    costPerPiece: 0,
+    withOverhead: 0,
+    finalCostPerPiece: 0
+  });
+
   const [materialPrices, setMaterialPrices] = useState({
     petkim: 0,
     estol: 0,
