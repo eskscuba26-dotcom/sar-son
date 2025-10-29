@@ -390,6 +390,7 @@ export const Production = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleEdit(production)}
                             className="text-blue-400 hover:text-blue-300 hover:bg-slate-800"
                           >
                             <Pencil className="h-4 w-4" />
