@@ -54,11 +54,14 @@ export const Materials = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await materialApi.create(formData);
-      toast({
-        title: 'Başarılı',
-        description: 'Hammadde kaydı eklendi',
-      });
+      if (editingId) {
+        await materialApi.update(editingId, formData);
+        toast({ title: 'Başarılı', description: 'Hammadde kaydı güncellendi' });
+        setEditingId(null);
+      } else {
+        await materialApi.create(formData);
+        toast({ title: 'Başarılı', description: 'Hammadde kaydı eklendi' });
+      }
       fetchMaterials();
       setFormData({
         date: new Date().toISOString().split('T')[0],
@@ -75,9 +78,26 @@ export const Materials = () => {
     } catch (error) {
       toast({
         title: 'Hata',
-        description: 'Hammadde kaydı eklenirken hata oluştu',
+        description: 'İşlem başarısız',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleEdit = (item) => {
+    setFormData(item);
+    setEditingId(item.id);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu hammadde kaydını silmek istediğinizden emin misiniz?')) {
+      try {
+        await materialApi.delete(id);
+        toast({ title: 'Başarılı', description: 'Kayıt silindi' });
+        fetchMaterials();
+      } catch (error) {
+        toast({ title: 'Hata', description: 'Silme başarısız', variant: 'destructive' });
+      }
     }
   };
 
