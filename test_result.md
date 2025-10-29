@@ -276,6 +276,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Materials page functional with form for new material entries. Material data properly integrated and displayed in dashboard statistics. All material types (PETKİM, ESTOL, TALK, GAZ, MASURA, SARI) are supported."
+      - working: true
+        agent: "testing"
+        comment: "CORRECTED DATA VERIFICATION SUCCESS: Hammadde page shows exactly 9 material entries as required. All expected materials verified: PETKİM LDPE, ESTOL, TALK, GAZ (N2), MASURA 100, MASURA 120, MASURA 150, MASURA 200, SARI MASTERBATCH. Verification requirement met exactly."
 
   - task: "Daily Consumption Page"
     implemented: true
