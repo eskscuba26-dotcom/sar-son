@@ -526,7 +526,7 @@ async def get_cost_analysis():
     return cost_analysis
 
 @api_router.post("/cost-analysis")
-async def create_cost_analysis(data: dict):
+async def create_cost_analysis(data: dict, _: bool = Depends(check_admin_role)):
     data['id'] = str(uuid.uuid4())
     await db.cost_analysis.insert_one(data)
     return {"message": "Created", "id": data['id']}
