@@ -25,6 +25,7 @@ const menuItems = [
   { path: '/materials', label: 'Hammadde Yönetimi', icon: ShoppingCart },
   { path: '/daily-consumption', label: 'Günlük Tüketim', icon: Calendar },
   { path: '/cost-analysis', label: 'Maliyet Analizi', icon: TrendingUp },
+  { path: '/manual-cost-calculator', label: 'Manuel Maliyet', icon: DollarSign },
   { path: '/exchange-rates', label: 'Kur Ayarları', icon: DollarSign },
   { path: '/users', label: 'Kullanıcı Yönetimi', icon: Users },
 ];
