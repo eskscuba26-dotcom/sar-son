@@ -537,7 +537,7 @@ async def get_users():
     return users
 
 @api_router.delete("/users/{user_id}")
-async def delete_user(user_id: str):
+async def delete_user(user_id: str, _: bool = Depends(check_admin_role)):
     result = await db.users.delete_one({"id": user_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
