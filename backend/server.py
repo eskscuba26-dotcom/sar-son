@@ -329,7 +329,7 @@ async def create_cut_product(data: dict, _: bool = Depends(check_admin_role)):
     return {"message": "Created", "id": data['id']}
 
 @api_router.delete("/cut-products/{id}")
-async def delete_cut_product(id: str):
+async def delete_cut_product(id: str, _: bool = Depends(check_admin_role)):
     result = await db.cut_products.delete_one({"id": id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Not found")
