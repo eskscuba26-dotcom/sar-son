@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test SAR Ambalaj Production Management System backend API endpoints for functionality and response validation"
+user_problem_statement: "Test SAR Ambalaj Production Management System frontend with ALL loaded data verification"
 
 backend:
   - task: "Authentication System"
