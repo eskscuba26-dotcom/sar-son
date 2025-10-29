@@ -41,7 +41,7 @@ exchange_rates_data = {
 users_data = [
     {
         'username': 'Mehmet', 
-        'password': '$2b$12$gXDH8gPqK8zV0mYjQxH9qOQsF6kW0Y5Y9Rw6jW7xY8H9pQ0Y1Y2Y3',  # 14143DıOa. (hashli)
+        'password': '$2b$12$UoLXfMwdx6OYYObuMSb20.F5le3XqckvNrwxfgiKo76hxDWbe9bQK',  # 14143DıOa. (hashli)
         'name': 'Mehmet', 
         'role': 'admin', 
         'createdAt': '2025-10-29'
