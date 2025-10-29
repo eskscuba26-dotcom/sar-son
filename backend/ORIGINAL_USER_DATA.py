@@ -89,9 +89,8 @@ ORIGINAL_DAILY_CONSUMPTION = [
     # 24.10.2025 - Toplam GAZ: 168 kg - Sadece Makine 1 (birden fazla kayıt ama hepsi Makine 1)
     {'date': '2025-10-24', 'machine': 'Makine 1', 'petkim': 616.32, 'estol': 18.4896, 'talk': 9.2448, 'gaz': 168.00, 'fire': 70.00},
     
-    # 27.10.2025 - KULLANICI DEDİ: 27'de GAZ GİRİŞİ YOK - Ama ekran görüntüsünde 200 var
-    # Şimdilik kaldırıyorum
-    # {'date': '2025-10-27', 'machine': 'Makine 2', 'petkim': 501.86, 'estol': 15.0558, 'talk': 7.5279, 'gaz': 200.00, 'fire': 25.00},
+    # 27.10.2025 - KULLANICI DEDİ: 27'de GAZ GİRİŞİ YOK - GAZ = 0
+    {'date': '2025-10-27', 'machine': 'Makine 2', 'petkim': 501.86, 'estol': 15.0558, 'talk': 7.5279, 'gaz': 0.00, 'fire': 25.00},
 ]
 
 async def load_original_data():
