@@ -217,6 +217,54 @@ export const ManualCostCalculator = () => {
     });
   };
 
+  // Ebatlama hesaplama
+  useEffect(() => {
+    if (ebatlama.enabled && results.baseCost > 0) {
+      calculateEbatlama();
+    }
+  }, [ebatlama, results]);
+
+  const calculateEbatlama = () => {
+    const cutWidth = parseFloat(ebatlama.width) || 0;
+    const cutLength = parseFloat(ebatlama.length) || 0;
+    const overheadPercent = parseFloat(ebatlama.overheadPercent) || 0;
+    const profitPercent = parseFloat(ebatlama.profitPercent) || 0;
+
+    if (cutWidth === 0 || cutLength === 0 || results.baseCost === 0) {
+      setEbatlamaResults({
+        pieceM2: 0,
+        piecesFromMain: 0,
+        costPerPiece: 0,
+        withOverhead: 0,
+        finalCostPerPiece: 0
+      });
+      return;
+    }
+
+    // Bir kesilmiş parçanın m²'si (cm x cm / 10000)
+    const pieceM2 = (cutWidth * cutLength) / 10000;
+
+    // Ana malzemeden kaç parça çıkar
+    const piecesFromMain = Math.floor(results.m2 / pieceM2);
+
+    // Bir parçanın ham maliyeti
+    const costPerPiece = results.baseCost / piecesFromMain;
+
+    // %15 genel masraf ekle
+    const withOverhead = costPerPiece * (1 + overheadPercent / 100);
+
+    // %30 kar payı ekle
+    const finalCostPerPiece = withOverhead * (1 + profitPercent / 100);
+
+    setEbatlamaResults({
+      pieceM2,
+      piecesFromMain,
+      costPerPiece,
+      withOverhead,
+      finalCostPerPiece
+    });
+  };
+
   const handleReset = () => {
     setFormData({
       thickness: '',
