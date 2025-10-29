@@ -78,6 +78,22 @@ export const Materials = () => {
     }
   };
 
+  const exportToExcel = () => {
+    const exportData = materials.map(item => ({
+      'Tarih': item.date,
+      'Hammadde': item.material,
+      'Miktar': `${item.quantity} ${item.unit}`,
+      'Birim Fiyat': `${item.unitPrice} ${item.currency}`,
+      'Toplam': `${item.totalPrice} TL`,
+      'Tedarikçi': item.supplier || '-'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Hammadde');
+    XLSX.writeFile(wb, `hammadde-kayitlari-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6" data-testid="materials-page">
       <div>
