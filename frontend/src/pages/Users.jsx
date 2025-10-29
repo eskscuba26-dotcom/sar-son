@@ -228,7 +228,7 @@ export const Users = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label className="text-slate-200">Kullanıcı Adı *</Label>
               <Input
@@ -247,25 +247,17 @@ export const Users = () => {
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="bg-slate-800/50 border-slate-700 text-white"
                 required
+                minLength={6}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-slate-200">Ad Soyad</Label>
+              <Label className="text-slate-200">Ad Soyad *</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 className="bg-slate-800/50 border-slate-700 text-white"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-slate-200">E-posta</Label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="bg-slate-800/50 border-slate-700 text-white"
+                required
               />
             </div>
 
@@ -282,7 +274,7 @@ export const Users = () => {
               </Select>
             </div>
 
-            <div className="flex items-end">
+            <div className="md:col-span-2 lg:col-span-4">
               <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700">
                 <Plus className="mr-2 h-4 w-4" />
                 Kullanıcı Ekle
