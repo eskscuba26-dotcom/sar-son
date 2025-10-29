@@ -360,7 +360,7 @@ async def get_materials():
     return materials
 
 @api_router.post("/materials")
-async def create_material(data: dict):
+async def create_material(data: dict, _: bool = Depends(check_admin_role)):
     data['id'] = str(uuid.uuid4())
     await db.materials.insert_one(data)
     return {"message": "Created", "id": data['id']}
