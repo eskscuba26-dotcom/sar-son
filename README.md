@@ -21,7 +21,7 @@ bash load_all_data.sh
 - **Rol:** Admin (Tam Yetki)
 
 ### Uygulama URL:
-https://dosya-acici.preview.emergentagent.com
+https://complete-loader.preview.emergentagent.com
 
 ## 📁 VERİ YAPISI
 
