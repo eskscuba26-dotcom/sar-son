@@ -11,6 +11,7 @@ import { Pencil, Trash2, Download, Filter } from 'lucide-react';
 
 export const Production = () => {
   const [productions, setProductions] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     machine: '',
