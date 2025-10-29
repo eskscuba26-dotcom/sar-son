@@ -299,7 +299,7 @@ export const DailyConsumption = () => {
               <TableBody>
                 {consumptions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={8} className="text-center text-slate-400 py-8">
                       Henüz tüketim kaydı bulunmuyor
                     </TableCell>
                   </TableRow>
@@ -313,6 +313,18 @@ export const DailyConsumption = () => {
                       <TableCell className="text-cyan-400">{parseFloat(item.talk || 0).toFixed(2)}</TableCell>
                       <TableCell className="text-red-400 font-semibold">{parseFloat(item.fire || 0).toFixed(2)}</TableCell>
                       <TableCell className="text-orange-400">{parseFloat(item.gaz || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                        {canDelete() && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(item.id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
