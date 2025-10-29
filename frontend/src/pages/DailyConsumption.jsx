@@ -26,7 +26,7 @@ export const DailyConsumption = () => {
     gaz: '',
   });
   const { toast } = useToast();
-  const { canAdd } = useAuth();
+  const { canAdd, canDelete } = useAuth();
 
   useEffect(() => {
     fetchConsumptions();
