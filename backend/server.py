@@ -623,7 +623,7 @@ async def get_exchange_rates():
     return {"usd": 42.00, "eur": 48.00}
 
 @api_router.put("/exchange-rates")
-async def update_exchange_rates(data: dict):
+async def update_exchange_rates(data: dict, _: bool = Depends(check_admin_role)):
     data['lastUpdated'] = datetime.now(timezone.utc).isoformat()
     await db.exchange_rates.update_one({}, {"$set": data}, upsert=True)
     return {"message": "Updated"}
