@@ -348,7 +348,7 @@ async def create_shipment(data: dict, _: bool = Depends(check_admin_role)):
     return {"message": "Created", "id": data['id']}
 
 @api_router.delete("/shipments/{id}")
-async def delete_shipment(id: str):
+async def delete_shipment(id: str, _: bool = Depends(check_admin_role)):
     result = await db.shipments.delete_one({"id": id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Not found")
