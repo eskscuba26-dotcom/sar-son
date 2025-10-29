@@ -93,18 +93,20 @@ export const Production = () => {
   const handleEdit = (production) => {
     setEditingId(production.id);
     setFormData({
-      date: production.date,
-      machine: production.machine,
-      thickness: production.thickness,
-      width: production.width,
-      length: production.length,
-      m2: production.m2,
-      quantity: production.quantity,
-      masuraType: production.masuraType,
-      color: production.color,
-      colorCategory: production.colorCategory,
+      date: production.date || '',
+      machine: production.machine || '',
+      thickness: production.thickness || '',
+      width: String(production.width || ''),
+      length: String(production.length || ''),
+      m2: production.m2 || 0,
+      quantity: String(production.quantity || ''),
+      masuraType: production.masuraType || '',
+      color: production.color || '',
+      colorCategory: production.colorCategory || '',
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   const handleCancelEdit = () => {
