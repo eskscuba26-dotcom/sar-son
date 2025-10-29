@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Download } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '@/hooks/use-auth';
+import * as XLSX from 'xlsx';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
