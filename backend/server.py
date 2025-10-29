@@ -342,7 +342,7 @@ async def get_shipments():
     return shipments
 
 @api_router.post("/shipments")
-async def create_shipment(data: dict):
+async def create_shipment(data: dict, _: bool = Depends(check_admin_role)):
     data['id'] = str(uuid.uuid4())
     await db.shipments.insert_one(data)
     return {"message": "Created", "id": data['id']}
