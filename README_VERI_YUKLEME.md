@@ -45,8 +45,8 @@ bash /app/backend/load_all_original_data.sh
 https://dosya-acici.preview.emergentagent.com
 
 **Giriş Bilgileri:**
-- Kullanıcı: admin
-- Şifre: SAR2025!
+- Kullanıcı Adı: **Mehmet**
+- Şifre: **14143DıOa.**
 
 ## 📈 Yüklenen Veriler
 
