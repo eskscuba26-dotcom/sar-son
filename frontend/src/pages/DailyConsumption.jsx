@@ -141,12 +141,13 @@ export const DailyConsumption = () => {
         </Card>
       </div>
 
-      {/* Form */}
-      <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader>
-          <CardTitle className="text-white">Tüketim Kaydı Ekle</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Form - Sadece Admin Görebilir */}
+      {canAdd() && (
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-white">Tüketim Kaydı Ekle</CardTitle>
+          </CardHeader>
+          <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
