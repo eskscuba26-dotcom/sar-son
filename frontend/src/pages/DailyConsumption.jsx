@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Download } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/hooks/use-auth';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -24,6 +25,7 @@ export const DailyConsumption = () => {
     gaz: '',
   });
   const { toast } = useToast();
+  const { canAdd } = useAuth();
 
   useEffect(() => {
     fetchConsumptions();
