@@ -306,6 +306,7 @@ export const Shipment = () => {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Shipment List */}
       <Card className="bg-slate-900/50 border-slate-800">
