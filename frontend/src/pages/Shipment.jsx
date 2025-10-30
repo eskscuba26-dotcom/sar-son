@@ -126,10 +126,13 @@ export const Shipment = () => {
     <div className="space-y-6" data-testid="shipment-page">
       <div>
         <h1 className="text-3xl font-bold text-white">Sevkiyat</h1>
-        <p className="text-slate-400 mt-1">Yeni sevkiyat kaydı oluşturun</p>
+        <p className="text-slate-400 mt-1">
+          {auth.isViewer() ? 'Sevkiyat kayıtlarını görüntüleyin' : 'Yeni sevkiyat kaydı oluşturun'}
+        </p>
       </div>
 
-      {/* Form */}
+      {/* Form - Sadece Admin */}
+      {auth.canAdd() && (
       <Card className="bg-slate-900/50 border-slate-800">
         <CardHeader>
           <CardTitle className="text-white">Sevkiyat Girişi</CardTitle>
