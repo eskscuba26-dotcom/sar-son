@@ -299,7 +299,7 @@ export const StockView = () => {
                       {(item.m2 * item.quantity).toFixed(2)}
                     </td>
                   </tr>
-                ))}
+                ))
                 )}
               </tbody>
               <tfoot>
