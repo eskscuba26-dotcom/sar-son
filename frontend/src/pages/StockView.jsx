@@ -114,6 +114,64 @@ export const StockView = () => {
         </Button>
       </div>
 
+      {/* Filtre ve Arama Bölümü */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Arama Kutusu */}
+            <div className="flex-1">
+              <Input
+                placeholder="Kalınlık, en, renk veya tip ile ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-500"
+              />
+            </div>
+            
+            {/* Filtre Butonları */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setFilterType('all')}
+                variant={filterType === 'all' ? 'default' : 'outline'}
+                className={filterType === 'all' 
+                  ? 'bg-emerald-600 hover:bg-emerald-700' 
+                  : 'bg-slate-900/50 border-slate-600 text-slate-300 hover:bg-slate-800'
+                }
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Tümü
+              </Button>
+              <Button
+                onClick={() => setFilterType('normal')}
+                variant={filterType === 'normal' ? 'default' : 'outline'}
+                className={filterType === 'normal' 
+                  ? 'bg-blue-600 hover:bg-blue-700' 
+                  : 'bg-slate-900/50 border-slate-600 text-slate-300 hover:bg-slate-800'
+                }
+              >
+                Normal
+              </Button>
+              <Button
+                onClick={() => setFilterType('cut')}
+                variant={filterType === 'cut' ? 'default' : 'outline'}
+                className={filterType === 'cut' 
+                  ? 'bg-orange-600 hover:bg-orange-700' 
+                  : 'bg-slate-900/50 border-slate-600 text-slate-300 hover:bg-slate-800'
+                }
+              >
+                Kesilmiş
+              </Button>
+            </div>
+          </div>
+          
+          {/* Sonuç Sayısı */}
+          <div className="mt-3 text-sm text-slate-400">
+            {filteredData.length} kayıt gösteriliyor
+            {searchTerm && ` (toplam ${stockData.length} kayıttan)`}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-slate-800/50 border-slate-700">
