@@ -247,7 +247,17 @@ export const StockView = () => {
                 </tr>
               </thead>
               <tbody>
-                {stockData.map((item, index) => (
+                {filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center p-8 text-slate-400">
+                      {searchTerm || filterType !== 'all' 
+                        ? 'Arama kriterlerine uygun kayıt bulunamadı' 
+                        : 'Henüz stok kaydı bulunmuyor'
+                      }
+                    </td>
+                  </tr>
+                ) : (
+                  filteredData.map((item, index) => (
                   <tr 
                     key={index} 
                     className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors"
