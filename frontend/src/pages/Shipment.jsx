@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { shipmentApi, productionApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import { Trash2, Download, Filter, Edit2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 export const Shipment = () => {
+  const auth = useAuth();
   const [shipments, setShipments] = useState([]);
   const [productions, setProductions] = useState([]);
   const [editingId, setEditingId] = useState(null);
