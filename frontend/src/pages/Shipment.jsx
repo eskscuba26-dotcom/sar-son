@@ -345,7 +345,7 @@ export const Shipment = () => {
                   <TableHead className="text-slate-300">Adet</TableHead>
                   <TableHead className="text-slate-300">Renk</TableHead>
                   <TableHead className="text-slate-300">İrsaliye</TableHead>
-                  <TableHead className="text-slate-300">İşlemler</TableHead>
+                  {auth.canEdit() && <TableHead className="text-slate-300">İşlemler</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
