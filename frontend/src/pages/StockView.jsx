@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Package } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Download, Package, Filter } from 'lucide-react';
 import { api } from '@/services/api';
 import * as XLSX from 'xlsx';
 
 export const StockView = () => {
   const [stockData, setStockData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all'); // 'all', 'normal', 'cut'
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalNormal: 0,
