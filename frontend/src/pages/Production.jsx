@@ -396,26 +396,28 @@ export const Production = () => {
                       <TableCell className="text-slate-300">{production.quantity}</TableCell>
                       <TableCell className="text-blue-400">{production.masuraType}</TableCell>
                       <TableCell className="text-slate-300">{production.color}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(production)}
-                            className="text-blue-400 hover:text-blue-300 hover:bg-slate-800"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(production.id)}
-                            className="text-red-400 hover:text-red-300 hover:bg-slate-800"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      {auth.canEdit() && (
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(production)}
+                              className="text-blue-400 hover:text-blue-300 hover:bg-slate-800"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(production.id)}
+                              className="text-red-400 hover:text-red-300 hover:bg-slate-800"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
