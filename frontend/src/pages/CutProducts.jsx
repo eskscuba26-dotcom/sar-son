@@ -223,6 +223,7 @@ export const CutProducts = () => {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Cut Products List */}
       <Card className="bg-slate-900/50 border-slate-800">
