@@ -374,16 +374,18 @@ export const Shipment = () => {
                       <TableCell className="text-slate-300">{ship.quantity}</TableCell>
                       <TableCell className="text-slate-300">{ship.color}</TableCell>
                       <TableCell className="text-blue-400">{ship.waybill}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(ship.id)}
-                          className="text-red-400 hover:text-red-300 hover:bg-slate-800"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                      {auth.canDelete() && (
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(ship.id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-slate-800"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
