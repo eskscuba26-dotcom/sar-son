@@ -271,16 +271,18 @@ export const CutProducts = () => {
                       <TableCell className="text-emerald-400 font-semibold text-lg">{cut.quantity}</TableCell>
                       <TableCell className="text-orange-400">{cut.usedMaterial}</TableCell>
                       <TableCell className="text-slate-300">{cut.color}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(cut.id)}
-                          className="text-red-400 hover:text-red-300 hover:bg-slate-800"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                      {auth.canDelete() && (
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(cut.id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-slate-800"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
