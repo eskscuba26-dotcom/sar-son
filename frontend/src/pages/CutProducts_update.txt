@@ -1,0 +1,5 @@
+Import ekle: import { useAuth } from '@/hooks/use-auth';
+Hook kullan: const auth = useAuth();
+Form: {auth.canAdd() && ( ... )}
+Buttons: {auth.canDelete() && ( ... )}
+Table head: {auth.canDelete() && <TableHead>İşlemler</TableHead>}
