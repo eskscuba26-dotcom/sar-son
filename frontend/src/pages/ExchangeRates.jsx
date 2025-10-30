@@ -86,7 +86,8 @@ export const ExchangeRates = () => {
         </Card>
       </div>
 
-      {/* Update Form */}
+      {/* Update Form - Sadece Admin */}
+      {auth.canEdit() && (
       <Card className="bg-slate-900/50 border-slate-800">
         <CardHeader>
           <CardTitle className="text-white">Kur Güncelleme</CardTitle>
