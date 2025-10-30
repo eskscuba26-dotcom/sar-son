@@ -51,9 +51,29 @@ export const StockView = () => {
     }
   };
 
+  // Filtreleme fonksiyonu
+  const filteredData = stockData.filter(item => {
+    // Tip filtresi
+    if (filterType === 'normal' && item.type !== 'Normal') return false;
+    if (filterType === 'cut' && item.type !== 'Kesilmiş') return false;
+    
+    // Arama filtresi
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      return (
+        item.thickness?.toLowerCase().includes(search) ||
+        item.width?.toString().includes(search) ||
+        item.color?.toLowerCase().includes(search) ||
+        item.type?.toLowerCase().includes(search)
+      );
+    }
+    
+    return true;
+  });
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      stockData.map(item => ({
+      filteredData.map(item => ({
         'Ürün Tipi': item.type,
         'Kalınlık (mm)': item.thickness,
         'En (cm)': item.width,
