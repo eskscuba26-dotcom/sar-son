@@ -252,7 +252,7 @@ export const CutProducts = () => {
                   <TableHead className="text-slate-300">Kesilen Adet</TableHead>
                   <TableHead className="text-slate-300">Kullanılan Malzeme</TableHead>
                   <TableHead className="text-slate-300">Renk</TableHead>
-                  <TableHead className="text-slate-300">İşlemler</TableHead>
+                  {auth.canDelete() && <TableHead className="text-slate-300">İşlemler</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
