@@ -300,6 +300,7 @@ export const StockView = () => {
                     </td>
                   </tr>
                 ))}
+                )}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-slate-600 bg-slate-700/30">
