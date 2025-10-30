@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { productionApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import { Pencil, Trash2, Download, Filter } from 'lucide-react';
 
 export const Production = () => {
@@ -25,6 +26,7 @@ export const Production = () => {
     colorCategory: '',
   });
   const { toast } = useToast();
+  const auth = useAuth();
 
   useEffect(() => {
     fetchProductions();
