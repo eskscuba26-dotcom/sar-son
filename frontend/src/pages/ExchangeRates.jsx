@@ -133,6 +133,7 @@ export const ExchangeRates = () => {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Info */}
       <Card className="bg-slate-900/50 border-slate-800">
